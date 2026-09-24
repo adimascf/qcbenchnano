@@ -11,7 +11,6 @@ filters:
 ::: {.callout-note appearance="simple" icon=false}
 **Scoring Specification:** 1.0 &nbsp;|&nbsp;
 **Benchmark Scope:** 13 reference bacterial isolates &times; 17 combinations &times; HAC/SUP &times; 20&times;/100&times; (884 observations) &nbsp;|&nbsp;
-**Provenance:** [adimascf/biox7021](https://github.com/adimascf/biox7021) @ [`4d6b8cb`](https://github.com/adimascf/biox7021/commit/4d6b8cb1d482e5066f9ca575ebd3b67af4a32562) &nbsp;|&nbsp;
 [Methods &amp; Robustness Documentation &rarr;](methods_and_robustness.html)
 :::
 
@@ -256,36 +255,6 @@ app_ui = ui.page_fluid(
         ui.output_ui("selected_combo_detail")
     ),
 
-    # Region 5: Concise Methodology
-    ui.tags.section(
-        {"id": "region-methodology", "role": "region", "aria-labelledby": "heading-methodology", "class": "region-container"},
-        ui.tags.h2({"id": "heading-methodology", "class": "region-header"}, "5. Concise Methodology & Provenance"),
-        ui.tags.p(
-            "Scoring Specification 1.0 evaluates four fixed 0–100 criterion scales without dynamic min–max rescaling: "
-            "(1) Reference-aware contiguity via symmetric distance from auNGA ratio 1.0; "
-            "(2) Sequence accuracy via combined mismatch-plus-indel event rate (0 at ≥10 events/100kbp); "
-            "(3) Residual adapter/barcode removal via cohort clean-isolate percentage; "
-            "(4) Reference-replicon recovery via cohort absolute count of replicons <50% coverage with fixed denominator 3."
-        ),
-        ui.tags.p(
-            ui.tags.a(
-                "Full Methods & Robustness Documentation →",
-                href="methods_and_robustness.html",
-                target="_blank"
-            ),
-            " | ",
-            ui.tags.a(
-                "Specification #10 →",
-                href="https://github.com/adimascf/biox7021/issues/10",
-                target="_blank"
-            ),
-            " | ",
-            ui.tags.a(
-                "Technical Specification Document →",
-                href="docs/qc-trimming-recommendation-system-specification.md",
-                target="_blank"
-            )
-        ),
         ui.tags.div(
             {"class": "provenance-box"},
             ui.tags.strong("Scoring Version: "), f"{app_config.scoring_version} | ",
@@ -296,7 +265,6 @@ app_ui = ui.page_fluid(
             "Scores represent preference-alignment trade-offs on this benchmark cohort and are not universal assembly quality indicators. "
             "No qualitative evaluation labels, rating tiers, or subjective categories are assigned."
         )
-    )
 )
 
 _REPLICON_COV_RE = re.compile(r"([\d.]+)\s*%\s*cov")
