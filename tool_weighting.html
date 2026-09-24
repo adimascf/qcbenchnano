@@ -1,0 +1,2039 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>QC Tool Recommendation Dashboard – QC Benchmark for Nanopore Reads</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-adfb2833bc15652ec5881dc6381ea988.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-60eb8141d3f50090c0f52d36a83ed331.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-adfb2833bc15652ec5881dc6381ea988.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-e8a4c0895993354b54972b5f1e41c0e4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-58008ceab81c4fb57a6fd58a386c2ec9.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-e8a4c0895993354b54972b5f1e41c0e4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<meta name="shinylive:serviceworker_dir" content=".">
+<script src="site_libs/quarto-contrib/shinylive-0.10.12/shinylive/load-shinylive-sw.js" type="module"></script>
+<script src="site_libs/quarto-contrib/shinylive-0.10.12/shinylive/run-python-blocks.js" type="module"></script>
+<link href="site_libs/quarto-contrib/shinylive-0.10.12/shinylive/shinylive.css" rel="stylesheet">
+<link href="site_libs/quarto-contrib/shinylive-quarto-css/shinylive-quarto.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">QC Benchmark for Nanopore Reads</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="./tool_weighting.html" aria-current="page"> 
+<span class="menu-text">QC Tool Selection</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./methods_and_robustness.html"> 
+<span class="menu-text">Methods &amp; Robustness</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content column-page" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">QC Tool Recommendation Dashboard</h1>
+</div>
+
+
+
+<div class="quarto-title-meta column-page">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>Scoring Specification:</strong> 1.0 &nbsp;|&nbsp; <strong>Benchmark Scope:</strong> 13 reference bacterial isolates × 17 combinations × HAC/SUP × 20×/100× (884 observations) &nbsp;|&nbsp; <a href="methods_and_robustness.html">Methods &amp; Robustness Documentation →</a></p>
+</div>
+</div>
+</div>
+<pre class="shinylive-python" data-engine="python"><code>#| '!! shinylive warning !!': |
+#|   shinylive does not work in self-contained HTML documents.
+#|   Please set `embed-resources: false` in your metadata.
+#| standalone: true
+#| viewerHeight: 1100
+
+from shiny import App, render, ui, reactive
+import pandas as pd
+import numpy as np
+import re
+import io
+import hashlib
+from datetime import datetime, timezone
+
+def _load_app_config():
+    try:
+        from qc_scoring.config import load_dashboard_config
+        return load_dashboard_config()
+    except Exception:
+        from dataclasses import dataclass
+
+        @dataclass(frozen=True)
+        class DashboardConfig:
+            repository_owner: str = "adimascf"
+            repository_name: str = "biox7021"
+            site_base_url: str = "https://adimascf.github.io/biox7021/"
+            default_branch: str = "main"
+            source_data_path: str = "logbook/assembly_metrics.csv"
+            pinned_commit: str = "4d6b8cb1d482e5066f9ca575ebd3b67af4a32562"
+            bundled_data_path: str = "assets/data/assembly_metrics.csv"
+            scoring_version: str = "1.0"
+
+            def provenance_text(self) -&gt; str:
+                commit_short = self.pinned_commit[:7] if self.pinned_commit else "unknown"
+                return f"Source: {self.repository_owner}/{self.repository_name} @ {commit_short}"
+
+            def data_url(self) -&gt; str:
+                return f"https://raw.githubusercontent.com/{self.repository_owner}/{self.repository_name}/{self.pinned_commit}/{self.source_data_path}"
+
+        try:
+            import yaml
+            for p in ["config/dashboard_config.yaml", "../config/dashboard_config.yaml"]:
+                try:
+                    with open(p, "r", encoding="utf-8") as f:
+                        data = yaml.safe_load(f) or {}
+                        repo = data.get("repository", {})
+                        evidence = data.get("evidence", {})
+                        scoring = data.get("scoring", {})
+                        return DashboardConfig(
+                            repository_owner=str(repo.get("owner", "adimascf")),
+                            repository_name=str(repo.get("name", "biox7021")),
+                            site_base_url=str(repo.get("base_url", "https://adimascf.github.io/biox7021/")),
+                            default_branch=str(repo.get("default_branch", "main")),
+                            source_data_path=str(evidence.get("source_data_path", "logbook/assembly_metrics.csv")),
+                            pinned_commit=str(evidence.get("pinned_commit", "4d6b8cb1d482e5066f9ca575ebd3b67af4a32562")),
+                            bundled_data_path=str(evidence.get("bundled_data_path", "assets/data/assembly_metrics.csv")),
+                            scoring_version=str(scoring.get("version", "1.0")),
+                        )
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+        return DashboardConfig()
+
+app_config = _load_app_config()
+
+app_ui = ui.page_fluid(
+    ui.tags.style("""
+        .region-container {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+            background-color: #ffffff;
+        }
+        .region-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 12px;
+            color: #1e293b;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 8px;
+        }
+        .provenance-box {
+            font-size: 0.85rem;
+            color: #64748b;
+            background-color: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 10px 14px;
+            margin-top: 15px;
+        }
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+        .ranking-table th {
+            background-color: #f8fafc;
+            color: #334155;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #cbd5e1;
+        }
+        .ranking-table td {
+            vertical-align: middle;
+            font-size: 0.9rem;
+        }
+        .near-tie-badge {
+            font-size: 0.72rem;
+            background-color: #475569;
+            color: #ffffff;
+            padding: 2px 7px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+        .dot-plot-container {
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
+        }
+        .text-interpretation-box {
+            font-size: 0.85rem;
+            color: #334155;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-top: 8px;
+            margin-bottom: 16px;
+        }
+    """),
+
+    # Region 1: Scenario Selection
+    ui.tags.section(
+        {"id": "region-scenario", "role": "region", "aria-labelledby": "heading-scenario", "class": "region-container"},
+        ui.tags.h2({"id": "heading-scenario", "class": "region-header"}, "1. Scenario Selection"),
+        ui.tags.p("Select the basecalling model and sequencing depth matching your experiment. Selections begin unset."),
+        ui.layout_columns(
+            ui.input_select(
+                "model_select",
+                "Basecalling Model",
+                {"": "-- Select Basecalling Model --", "hac": "HAC (High Accuracy)", "sup": "SUP (Super Accurate)"},
+                selected="",
+            ),
+            ui.input_select(
+                "depth_select",
+                "Sequencing Depth",
+                {"": "-- Select Sequencing Depth --", "20x": "20× Depth", "100x": "100× Depth"},
+                selected="",
+            ),
+            col_widths=(6, 6)
+        ),
+        ui.output_ui("scenario_validation_msg")
+    ),
+
+    # Region 2: Priorities and Weights
+    ui.tags.section(
+        {"id": "region-priorities", "role": "region", "aria-labelledby": "heading-priorities", "class": "region-container"},
+        ui.tags.h2({"id": "heading-priorities", "class": "region-header"}, "2. Priorities &amp; Eligibility Requirements"),
+        ui.tags.p("Choose a published starting preset or define custom percentage priorities totaling 100%."),
+        ui.layout_columns(
+            ui.tags.div(
+                ui.input_select(
+                    "preset_select",
+                    "Preference Preset",
+                    {
+                        "community_balanced": "Community-balanced (28% Acc, 20% Contig, 17% Res, 35% Repl)",
+                        "complete_replicon_recovery": "Complete-replicon-recovery (Gate: all replicons ≥95%)",
+                        "sequence_accurate_assembly": "Sequence-accurate-assembly (50% Acc, 14% Contig, 12% Res, 24% Repl)",
+                        "custom": "Custom Priorities"
+                    },
+                    selected="community_balanced"
+                ),
+                ui.input_action_button(
+                    "btn_reset",
+                    "Reset to Community-balanced",
+                    class_="btn btn-sm btn-outline-secondary",
+                    style="margin-top: 4px;"
+                )
+            ),
+            ui.output_ui("preset_description"),
+            col_widths=(6, 6)
+        ),
+        ui.tags.div(
+            {"role": "group", "aria-labelledby": "weights-label"},
+            ui.tags.span({"id": "weights-label", "class": "sr-only"}, "Criterion percentage weights"),
+            ui.layout_columns(
+                ui.input_numeric("w_acc", "Sequence Accuracy (%)", value=28, min=0, max=100, step=0.1),
+                ui.input_numeric("w_cont", "Reference Contiguity (%)", value=20, min=0, max=100, step=0.1),
+                ui.input_numeric("w_res", "Residual Adapter Removal (%)", value=17, min=0, max=100, step=0.1),
+                ui.input_numeric("w_rep", "Replicon Recovery (%)", value=35, min=0, max=100, step=0.1),
+                col_widths=(3, 3, 3, 3)
+            ),
+            ui.output_ui("weight_total_indicator")
+        ),
+        ui.tags.hr(),
+        ui.tags.div(
+            {"role": "group", "aria-labelledby": "gates-label"},
+            ui.tags.h3({"id": "gates-label", "style": "font-size: 1rem; font-weight: 600;"}, "Non-compensatory Eligibility Gates"),
+            ui.input_checkbox("gate_complete", "Require Complete Replicon Recovery (all replicons ≥95% coverage)", value=False),
+            ui.input_checkbox("gate_zero_hits", "Require Zero Detected Residual Adapter/Barcode Hits", value=False)
+        )
+    ),
+
+    # Region 3: Recommendation Shortlist
+    ui.tags.section(
+        {"id": "region-shortlist", "role": "region", "aria-labelledby": "heading-shortlist", "class": "region-container"},
+        ui.tags.h2({"id": "heading-shortlist", "class": "region-header"}, "3. Recommendation Shortlist"),
+        ui.tags.p(
+            "Ranked eligible QC–trimming combinations ordered by full-precision preference-alignment score (fixed ranking order; not re-sortable by individual metrics). "
+            "Adjacent eligible results differing by less than one full-precision point are labelled 'similar overall scores' (descriptive communication qualifier; not statistically equivalent)."
+        ),
+        ui.output_ui("shortlist_content")
+    ),
+
+    # Region 4: Selected Detail
+    ui.tags.section(
+        {"id": "region-detail", "role": "region", "aria-labelledby": "heading-detail", "class": "region-container"},
+        ui.tags.h2({"id": "heading-detail", "class": "region-header"}, "4. Selected Combination Evidence &amp; Diagnostics"),
+        ui.tags.p("Detailed per-isolate performance, warnings, dot plots, and error-event breakdown for the selected tool combination:"),
+        ui.tags.div(
+            ui.input_select(
+                "selected_combo",
+                "Select Combination to Inspect Evidence &amp; Diagnostics:",
+                {"": "-- Select Scenario First --"},
+                selected="",
+            ),
+            style="max-width: 520px; margin-bottom: 16px;"
+        ),
+        ui.output_ui("selected_combo_detail")
+    ),
+
+        ui.tags.div(
+            {"class": "provenance-box"},
+            ui.tags.strong("Scoring Version: "), f"{app_config.scoring_version} | ",
+            ui.tags.strong("Source Repository: "), f"{app_config.repository_owner}/{app_config.repository_name} | ",
+            ui.tags.strong("Pinned Commit: "), f"{app_config.pinned_commit} | ",
+            ui.tags.strong("Benchmark Scope &amp; Limitations: "),
+            "Evaluated on 13 reference bacterial isolates across 17 QC–trimming combinations (884 observations). "
+            "Scores represent preference-alignment trade-offs on this benchmark cohort and are not universal assembly quality indicators. "
+            "No qualitative evaluation labels, rating tiers, or subjective categories are assigned."
+        )
+)
+
+_REPLICON_COV_RE = re.compile(r"([\d.]+)\s*%\s*cov")
+
+EXPECTED_BENCHMARK_COMBINATIONS = {
+    "chopper-barbell", "chopper-dorado", "chopper-porechop_abi", "chopper-untrimmed",
+    "fastplong-all", "filtlong-barbell", "filtlong-dorado", "filtlong-porechop_abi",
+    "filtlong-untrimmed", "seqkit-barbell", "seqkit-dorado", "seqkit-porechop_abi",
+    "seqkit-untrimmed", "unprocessed-barbell", "unprocessed-dorado",
+    "unprocessed-porechop_abi", "unprocessed-untrimmed",
+}
+
+EXPECTED_BENCHMARK_SAMPLES = {
+    "AJ292__202310", "AMtb_1__202402", "ATCC_10708__202309", "ATCC_17802__202309",
+    "ATCC_19119__202309", "ATCC_25922__202309", "ATCC_33560__202309", "ATCC_35221__202309",
+    "ATCC_35897__202309", "ATCC_BAA-679__202309", "BPH2947__202310", "MMC234__202311", "RDH275__202311"
+}
+
+def render_dot_plot_svg(title: str, plot_id: str, isolate_scores: dict, cohort_mean: float) -&gt; str:
+    samples = sorted(isolate_scores.keys())
+    n = len(samples)
+    row_height = 24
+    top_margin = 46
+    bottom_margin = 40
+    left_margin = 175
+    plot_width = 450
+    total_width = left_margin + plot_width + 65
+    total_height = top_margin + (n * row_height) + bottom_margin
+
+    def val_to_x(val: float) -&gt; float:
+        clipped = max(0.0, min(100.0, float(val)))
+        return left_margin + (clipped / 100.0) * plot_width
+
+    grid_lines = []
+    tick_labels = []
+    for tick in [0, 20, 40, 60, 80, 100]:
+        x = val_to_x(tick)
+        grid_lines.append(f'&lt;line x1="{x:.1f}" y1="{top_margin}" x2="{x:.1f}" y2="{top_margin + n * row_height}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2,2"/&gt;')
+        tick_labels.append(f'&lt;text x="{x:.1f}" y="{top_margin + n * row_height + 18}" text-anchor="middle" font-size="11" fill="#64748b" font-family="sans-serif"&gt;{tick}&lt;/text&gt;')
+
+    mean_x = val_to_x(cohort_mean)
+    mean_line = (
+        f'&lt;line x1="{mean_x:.1f}" y1="{top_margin - 8}" x2="{mean_x:.1f}" y2="{top_margin + n * row_height + 8}" '
+        f'stroke="#0284c7" stroke-width="2.5" stroke-dasharray="4,3"/&gt;\n'
+        f'&lt;rect x="{mean_x - 52:.1f}" y="{top_margin - 25}" width="104" height="18" rx="3" fill="#0284c7"/&gt;\n'
+        f'&lt;text x="{mean_x:.1f}" y="{top_margin - 12}" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#ffffff" font-family="sans-serif"&gt;Cohort Mean: {cohort_mean:.1f}&lt;/text&gt;'
+    )
+
+    rows = []
+    for idx, sample in enumerate(samples):
+        y = top_margin + idx * row_height + (row_height / 2)
+        score = float(isolate_scores.get(sample, 0.0))
+        dot_x = val_to_x(score)
+        rows.append(f'&lt;line x1="{left_margin}" y1="{y:.1f}" x2="{left_margin + plot_width}" y2="{y:.1f}" stroke="#f8fafc" stroke-width="1"/&gt;')
+        rows.append(f'&lt;text x="{left_margin - 10}" y="{y + 4:.1f}" text-anchor="end" font-size="11" fill="#334155" font-family="monospace"&gt;{sample}&lt;/text&gt;')
+        # Dual visual encoding: filled circle + white ring (colour is not the only carrier)
+        rows.append(
+            f'&lt;circle cx="{dot_x:.1f}" cy="{y:.1f}" r="6" fill="#0f766e" stroke="#134e4a" stroke-width="1.5"/&gt;\n'
+            f'&lt;circle cx="{dot_x:.1f}" cy="{y:.1f}" r="2" fill="#ffffff"/&gt;'
+        )
+        text_x = dot_x + 10 if dot_x &lt; (left_margin + plot_width - 32) else dot_x - 10
+        text_anchor = "start" if dot_x &lt; (left_margin + plot_width - 32) else "end"
+        rows.append(f'&lt;text x="{text_x:.1f}" y="{y + 3.5:.1f}" text-anchor="{text_anchor}" font-size="10" font-weight="600" fill="#0f766e" font-family="sans-serif"&gt;{score:.1f}&lt;/text&gt;')
+
+    return f"""
+    &lt;svg id="{plot_id}" width="100%" height="{total_height}" viewBox="0 0 {total_width} {total_height}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{title} per-isolate dot plot"&gt;
+        &lt;title&gt;{title} Dot Plot&lt;/title&gt;
+        &lt;desc&gt;{title} scores for 13 reference bacterial isolates with cohort mean at {cohort_mean:.1f}. No population confidence intervals are displayed as this is the complete benchmark cohort.&lt;/desc&gt;
+        &lt;text x="{left_margin}" y="18" font-size="13" font-weight="bold" fill="#1e293b" font-family="sans-serif"&gt;{title}&lt;/text&gt;
+        &lt;text x="{left_margin}" y="32" font-size="10" fill="#64748b" font-family="sans-serif"&gt;Fixed 0–100 criterion scale | Reference cohort (no population confidence intervals)&lt;/text&gt;
+        {''.join(grid_lines)}
+        {''.join(tick_labels)}
+        {''.join(rows)}
+        {mean_line}
+    &lt;/svg&gt;
+    """
+
+def calculate_scenario_rankings(
+    df: pd.DataFrame,
+    model: str,
+    depth: str,
+    weight_accuracy: float,
+    weight_contiguity: float,
+    weight_residual: float,
+    weight_replicon: float,
+    gate_complete: bool = False,
+    gate_zero_hits: bool = False,
+):
+    subset = df[(df["model"] == model) &amp; (df["depth"] == depth)]
+    w_acc = float(weight_accuracy) / 100.0
+    w_cont = float(weight_contiguity) / 100.0
+    w_res = float(weight_residual) / 100.0
+    w_rep = float(weight_replicon) / 100.0
+
+    eligible_records = []
+    excluded_records = []
+    insufficient_records = []
+
+    combos_present = set(subset["combo"].unique()) if not subset.empty else set()
+    all_combos = sorted(EXPECTED_BENCHMARK_COMBINATIONS.union(combos_present))
+
+    for combo in all_combos:
+        combo_name = str(combo)
+        isolate_metrics = subset[subset["combo"] == combo]
+        samples_present = set(isolate_metrics["sample"].unique())
+        missing_samples = EXPECTED_BENCHMARK_SAMPLES - samples_present
+        if missing_samples:
+            insufficient_records.append({
+                "combo": combo_name,
+                "overall_score": 0.0,
+                "display_score": None,
+                "rank": None,
+                "is_eligible": False,
+                "is_insufficient_data": True,
+                "ineligible_reason": (
+                    f"insufficient benchmark data: missing {len(missing_samples)} isolate(s): "
+                    f"{sorted(missing_samples)}"
+                ),
+                "reasons": [
+                    f"insufficient benchmark data: missing {len(missing_samples)} isolate(s): "
+                    f"{sorted(missing_samples)}"
+                ],
+                "warnings": ["Insufficient benchmark data"],
+                "raw_group": isolate_metrics,
+            })
+            continue
+
+        iso_cont = np.maximum(0.0, 1.0 - np.abs(isolate_metrics["auNGA_ratio"] - 1.0)) * 100.0
+        iso_acc = np.clip(1.0 - (isolate_metrics["Mismatches per 100kbp"] + isolate_metrics["Indels per 100kbp"]) / 10.0, 0.0, 1.0) * 100.0
+
+        mean_cont = float(np.mean(iso_cont))
+        mean_acc = float(np.mean(iso_acc))
+        clean_pct = float(np.mean(isolate_metrics["contamination_count"] == 0) * 100.0)
+        total_residual_hits = int(isolate_metrics["contamination_count"].sum())
+        clean_isolates = int((isolate_metrics["contamination_count"] == 0).sum())
+        affected_residual_isolates = int((isolate_metrics["contamination_count"] &gt; 0).sum())
+        total_missed_replicons = int(isolate_metrics["total_missed"].sum())
+        full_missed = int(isolate_metrics["full_missed"].sum())
+        partial_missed = int(isolate_metrics["partial_missed"].sum())
+        affected_replicon_isolates = int((isolate_metrics["total_missed"] &gt; 0).sum())
+        score_rep = float(max(0.0, 1.0 - total_missed_replicons / 3.0) * 100.0)
+
+        mean_error_rate = float(np.mean(isolate_metrics["Mismatches per 100kbp"] + isolate_metrics["Indels per 100kbp"]))
+        mean_mismatches = float(np.mean(isolate_metrics["Mismatches per 100kbp"]))
+        mean_indels = float(np.mean(isolate_metrics["Indels per 100kbp"]))
+        mean_aunga = float(np.mean(isolate_metrics["auNGA_ratio"]))
+
+        # Supporting diagnostics
+        dup_series = isolate_metrics["Duplication_ratio"] if "Duplication_ratio" in isolate_metrics.columns else pd.Series([1.0] * len(isolate_metrics))
+        mean_duplication = float(np.mean(dup_series))
+        mis_series = isolate_metrics["misassemblies"] if "misassemblies" in isolate_metrics.columns else pd.Series([0] * len(isolate_metrics))
+        total_misassemblies = int(np.sum(mis_series))
+
+        overall_score = (w_acc * mean_acc + w_cont * mean_cont + w_res * clean_pct + w_rep * score_rep)
+
+        # Check replicon completeness (&gt;=95% coverage on all expected replicons, rejecting empty strings)
+        all_replicons_complete = True
+        for cov_str in isolate_metrics["all_contigs_coverage"]:
+            text = str(cov_str).strip()
+            if not text:
+                all_replicons_complete = False
+                break
+            matches = _REPLICON_COV_RE.findall(text)
+            if not matches or any(float(m) &lt; 95.0 for m in matches):
+                all_replicons_complete = False
+                break
+
+        is_eligible = True
+        reasons = []
+
+        if gate_complete and not all_replicons_complete:
+            is_eligible = False
+            reasons.append("fails complete-recovery gate (&lt;95% coverage on at least one replicon)")
+
+        if gate_zero_hits and total_residual_hits &gt; 0:
+            is_eligible = False
+            reasons.append(f"fails zero-residual-hits gate ({total_residual_hits} residual hit(s) detected)")
+
+        # Concrete warnings
+        warnings = []
+        if total_residual_hits &gt; 0:
+            warnings.append(f"{total_residual_hits} residual adapter/barcode hit(s) across {affected_residual_isolates} isolate(s)")
+        if total_missed_replicons &gt; 0:
+            warnings.append(f"{total_missed_replicons} missed or severely incomplete replicon(s) across {affected_replicon_isolates} isolate(s) ({full_missed} full, {partial_missed} partial)")
+
+        min_acc_val = float(np.min(iso_acc))
+        if (mean_acc - min_acc_val) &gt;= 25.0:
+            warnings.append(f"Variable sequence accuracy across isolates: lowest isolate score is {min_acc_val:.1f} (cohort mean {mean_acc:.1f})")
+
+        min_cont_val = float(np.min(iso_cont))
+        if (mean_cont - min_cont_val) &gt;= 25.0:
+            warnings.append(f"Variable contiguity across isolates: lowest isolate score is {min_cont_val:.1f} (cohort mean {mean_cont:.1f})")
+
+        sample_names = list(isolate_metrics["sample"])
+        iso_acc_dict = {str(s): float(v) for s, v in zip(sample_names, iso_acc)}
+        iso_cont_dict = {str(s): float(v) for s, v in zip(sample_names, iso_cont)}
+
+        item = {
+            "combo": combo_name,
+            "overall_score": overall_score,
+            "display_score": round(overall_score, 1),
+            "rank": None,
+            "is_eligible": is_eligible,
+            "is_insufficient_data": False,
+            "contiguity": round(mean_cont, 1),
+            "accuracy": round(mean_acc, 1),
+            "residual": round(clean_pct, 1),
+            "replicon": round(score_rep, 1),
+            "score_contiguity": mean_cont,
+            "score_accuracy": mean_acc,
+            "score_residual": clean_pct,
+            "score_replicon": score_rep,
+            "mean_error_rate": mean_error_rate,
+            "mean_mismatches": mean_mismatches,
+            "mean_indels": mean_indels,
+            "mean_aunga": mean_aunga,
+            "mean_duplication_ratio": mean_duplication,
+            "total_misassemblies": total_misassemblies,
+            "isolate_acc_scores": iso_acc_dict,
+            "isolate_cont_scores": iso_cont_dict,
+            "t_hits": total_residual_hits,
+            "clean_isolates": clean_isolates,
+            "affected_residual_isolates": affected_residual_isolates,
+            "t_miss": total_missed_replicons,
+            "full_missed": full_missed,
+            "partial_missed": partial_missed,
+            "affected_replicon_isolates": affected_replicon_isolates,
+            "reasons": reasons,
+            "ineligible_reason": "; ".join(reasons) if reasons else None,
+            "warnings": warnings,
+            "is_near_tie": False,
+            "raw_group": isolate_metrics,
+        }
+
+        if is_eligible:
+            eligible_records.append(item)
+        else:
+            excluded_records.append(item)
+
+    # Sort eligible by full precision overall_score descending, then combo
+    eligible_records.sort(key=lambda r: (-r["overall_score"], r["combo"]))
+
+    # Competition ranking
+    for idx, rec in enumerate(eligible_records):
+        if idx == 0:
+            rec["rank"] = 1
+        else:
+            prev = eligible_records[idx - 1]
+            if abs(rec["overall_score"] - prev["overall_score"]) &lt; 1e-9:
+                rec["rank"] = prev["rank"]
+            else:
+                rec["rank"] = idx + 1
+
+    # Near tie calculation
+    for idx in range(len(eligible_records) - 1):
+        if abs(eligible_records[idx]["overall_score"] - eligible_records[idx + 1]["overall_score"]) &lt; 1.0:
+            eligible_records[idx]["is_near_tie"] = True
+            eligible_records[idx + 1]["is_near_tie"] = True
+
+    excluded_records.sort(key=lambda r: (-r["overall_score"], r["combo"]))
+    insufficient_records.sort(key=lambda r: r["combo"])
+
+    return eligible_records, excluded_records, insufficient_records
+
+def generate_dashboard_csv_export(
+    df: pd.DataFrame,
+    model: str,
+    depth: str,
+    preset: str,
+    weight_accuracy: float,
+    weight_contiguity: float,
+    weight_residual: float,
+    weight_replicon: float,
+    gate_complete: bool = False,
+    gate_zero_hits: bool = False,
+    config=None,
+) -&gt; str:
+    if not model or not depth:
+        raise ValueError("Cannot generate CSV export: Scenario must be selected (basecalling model and depth).")
+
+    w_acc = float(weight_accuracy)
+    w_cont = float(weight_contiguity)
+    w_res = float(weight_residual)
+    w_rep = float(weight_replicon)
+    if w_acc &lt; 0 or w_cont &lt; 0 or w_res &lt; 0 or w_rep &lt; 0:
+        raise ValueError("Cannot generate CSV export: Weights must be non-negative.")
+    total = w_acc + w_cont + w_res + w_rep
+    if abs(total - 100.0) &gt; 1e-4 or total == 0:
+        raise ValueError("Cannot generate CSV export: Weights must total exactly 100%.")
+
+    eligible, excluded, insufficient = calculate_scenario_rankings(
+        df=df,
+        model=model,
+        depth=depth,
+        weight_accuracy=w_acc,
+        weight_contiguity=w_cont,
+        weight_residual=w_res,
+        weight_replicon=w_rep,
+        gate_complete=gate_complete,
+        gate_zero_hits=gate_zero_hits,
+    )
+
+    csv_bytes = df.to_csv(index=False).encode("utf-8")
+    content_hash = hashlib.sha256(csv_bytes).hexdigest()
+    now_iso = datetime.now(timezone.utc).isoformat()
+
+    scoring_version = getattr(config, "scoring_version", "1.0") if config else "1.0"
+    source_commit = getattr(config, "pinned_commit", "4d6b8cb1d482e5066f9ca575ebd3b67af4a32562") if config else "4d6b8cb1d482e5066f9ca575ebd3b67af4a32562"
+
+    def _build_row(r, rank_val, is_elig, is_insuff, inelig_reason, is_nt, nt_label, disp_score):
+        return {
+            "rank": rank_val,
+            "combo": r["combo"],
+            "overall_score": r["overall_score"] if not is_insuff else 0.0,
+            "display_score": disp_score,
+            "is_eligible": is_elig,
+            "is_insufficient_data": is_insuff,
+            "ineligible_reason": inelig_reason,
+            "is_near_tie": is_nt,
+            "near_tie_label": nt_label,
+            "score_contiguity": r["score_contiguity"] if not is_insuff else 0.0,
+            "score_accuracy": r["score_accuracy"] if not is_insuff else 0.0,
+            "score_residual": r["score_residual"] if not is_insuff else 0.0,
+            "score_replicon": r["score_replicon"] if not is_insuff else 0.0,
+            "mean_auNGA_ratio": r["mean_aunga"] if not is_insuff else 0.0,
+            "mean_error_rate": r["mean_error_rate"] if not is_insuff else 0.0,
+            "mean_mismatches": r["mean_mismatches"] if not is_insuff else 0.0,
+            "mean_indels": r["mean_indels"] if not is_insuff else 0.0,
+            "residual_total_hits": r["t_hits"] if not is_insuff else 0,
+            "residual_clean_isolates": r["clean_isolates"] if not is_insuff else 0,
+            "residual_affected_isolates": r["affected_residual_isolates"] if not is_insuff else 0,
+            "replicon_total_missed": r["t_miss"] if not is_insuff else 0,
+            "replicon_full_missed": r["full_missed"] if not is_insuff else 0,
+            "replicon_partial_missed": r["partial_missed"] if not is_insuff else 0,
+            "replicon_affected_isolates": r["affected_replicon_isolates"] if not is_insuff else 0,
+            "mean_duplication_ratio": r["mean_duplication_ratio"] if not is_insuff else 0.0,
+            "total_misassemblies": r["total_misassemblies"] if not is_insuff else 0,
+            "warnings": "; ".join(r["warnings"]),
+            "preset": preset,
+            "scenario_model": model,
+            "scenario_depth": depth,
+            "weight_accuracy": w_acc,
+            "weight_contiguity": w_cont,
+            "weight_residual": w_res,
+            "weight_replicon": w_rep,
+            "gate_complete_recovery": bool(gate_complete),
+            "gate_zero_residual_hits": bool(gate_zero_hits),
+            "scoring_version": scoring_version,
+            "source_data_commit": source_commit,
+            "source_data_hash": content_hash,
+            "generated_at": now_iso,
+        }
+
+    rows = []
+    # 1. Eligible combinations in displayed ranking order
+    for r in eligible:
+        rows.append(_build_row(
+            r,
+            rank_val=r["rank"] if r["rank"] is not None else "",
+            is_elig=True,
+            is_insuff=False,
+            inelig_reason="",
+            is_nt=r["is_near_tie"],
+            nt_label="similar overall scores" if r["is_near_tie"] else "",
+            disp_score=r["display_score"] if r["display_score"] is not None else "",
+        ))
+
+    # 2. Excluded combinations in displayed order
+    for r in excluded:
+        rows.append(_build_row(
+            r,
+            rank_val="",
+            is_elig=False,
+            is_insuff=False,
+            inelig_reason="; ".join(r["reasons"]),
+            is_nt=r["is_near_tie"],
+            nt_label="similar overall scores" if r["is_near_tie"] else "",
+            disp_score=r["display_score"] if r["display_score"] is not None else "",
+        ))
+
+    # 3. Insufficient data combinations in displayed order
+    for r in insufficient:
+        rows.append(_build_row(
+            r,
+            rank_val="",
+            is_elig=False,
+            is_insuff=True,
+            inelig_reason="; ".join(r["reasons"]),
+            is_nt=False,
+            nt_label="",
+            disp_score="",
+        ))
+
+    export_df = pd.DataFrame(rows)
+    buf = io.StringIO()
+    export_df.to_csv(buf, index=False)
+    return buf.getvalue()
+
+def server(input, output, session):
+
+    show_all = reactive.Value(False)
+    target_preset = reactive.Value(None)
+
+    PRESET_DEFINITIONS = {
+        "community_balanced": (28.0, 20.0, 17.0, 35.0, False, False),
+        "complete_replicon_recovery": (43.0, 31.0, 26.0, 0.0, True, False),
+        "sequence_accurate_assembly": (50.0, 14.0, 12.0, 24.0, False, False),
+    }
+
+    @reactive.Effect
+    @reactive.event(input.btn_reveal_all)
+    def _toggle_show_all():
+        show_all.set(not show_all.get())
+
+    @reactive.Effect
+    def _update_selected_combo_choices():
+        eligible, _, _ = evaluated_results()
+        if not eligible:
+            ui.update_select("selected_combo", choices={"": "-- No Eligible Combinations --"}, selected="")
+            return
+        choices = {}
+        for r in eligible:
+            choices[r["combo"]] = f"Rank {r['rank']}: {r['combo']} (Score: {r['display_score']})"
+        curr = input.selected_combo()
+        new_sel = curr if (curr and curr in choices) else eligible[0]["combo"]
+        ui.update_select("selected_combo", choices=choices, selected=new_sel)
+
+    @reactive.Effect
+    @reactive.event(input.preset_select)
+    def _apply_preset():
+        p = input.preset_select()
+        if p in PRESET_DEFINITIONS:
+            w_acc, w_cont, w_res, w_rep, g_comp, g_zero = PRESET_DEFINITIONS[p]
+            target_preset.set(p)
+            ui.update_numeric("w_acc", value=w_acc)
+            ui.update_numeric("w_cont", value=w_cont)
+            ui.update_numeric("w_res", value=w_res)
+            ui.update_numeric("w_rep", value=w_rep)
+            ui.update_checkbox("gate_complete", value=g_comp)
+            ui.update_checkbox("gate_zero_hits", value=g_zero)
+
+    @reactive.Effect
+    @reactive.event(input.btn_reset)
+    def _reset_to_community():
+        w_acc, w_cont, w_res, w_rep, g_comp, g_zero = PRESET_DEFINITIONS["community_balanced"]
+        target_preset.set("community_balanced")
+        ui.update_select("preset_select", selected="community_balanced")
+        ui.update_numeric("w_acc", value=w_acc)
+        ui.update_numeric("w_cont", value=w_cont)
+        ui.update_numeric("w_res", value=w_res)
+        ui.update_numeric("w_rep", value=w_rep)
+        ui.update_checkbox("gate_complete", value=g_comp)
+        ui.update_checkbox("gate_zero_hits", value=g_zero)
+
+    def _matches_config(current, expected):
+        return (
+            abs(current[0] - expected[0]) &lt; 1e-4
+            and abs(current[1] - expected[1]) &lt; 1e-4
+            and abs(current[2] - expected[2]) &lt; 1e-4
+            and abs(current[3] - expected[3]) &lt; 1e-4
+            and current[4] == expected[4]
+            and current[5] == expected[5]
+        )
+
+    @reactive.Effect
+    def _detect_manual_edits():
+        preset_name = input.preset_select()
+        if preset_name not in PRESET_DEFINITIONS:
+            return
+        weight_accuracy = input.w_acc()
+        weight_contiguity = input.w_cont()
+        weight_residual = input.w_res()
+        weight_replicon = input.w_rep()
+        gate_complete_checked = input.gate_complete()
+        gate_zero_hits_checked = input.gate_zero_hits()
+        if None in (
+            weight_accuracy,
+            weight_contiguity,
+            weight_residual,
+            weight_replicon,
+            gate_complete_checked,
+            gate_zero_hits_checked,
+        ):
+            return
+        current_config = (
+            float(weight_accuracy),
+            float(weight_contiguity),
+            float(weight_residual),
+            float(weight_replicon),
+            bool(gate_complete_checked),
+            bool(gate_zero_hits_checked),
+        )
+        in_flight_preset = target_preset.get()
+        if in_flight_preset is not None:
+            if in_flight_preset != preset_name:
+                target_preset.set(None)
+                return
+            expected_config = PRESET_DEFINITIONS[in_flight_preset]
+            if _matches_config(current_config, expected_config):
+                target_preset.set(None)
+            return
+
+        active_preset_config = PRESET_DEFINITIONS[preset_name]
+        if not _matches_config(current_config, active_preset_config):
+            ui.update_select("preset_select", selected="custom")
+
+    @reactive.Calc
+    def load_metrics_data():
+        try:
+            from pyodide.http import open_url
+            try:
+                return pd.read_csv(open_url("assets/data/assembly_metrics.csv"))
+            except Exception:
+                pass
+            try:
+                return pd.read_csv(open_url("logbook/assembly_metrics.csv"))
+            except Exception:
+                pass
+            pinned_url = app_config.data_url()
+            return pd.read_csv(open_url(pinned_url))
+        except ImportError:
+            for path in [
+                "assets/data/assembly_metrics.csv",
+                "logbook/assembly_metrics.csv",
+                "assembly_metrics.csv"
+            ]:
+                try:
+                    return pd.read_csv(path)
+                except Exception:
+                    continue
+            raise FileNotFoundError("Could not find assembly_metrics.csv in local paths")
+
+    @reactive.Calc
+    def weights_valid():
+        w1 = input.w_acc()
+        w2 = input.w_cont()
+        w3 = input.w_res()
+        w4 = input.w_rep()
+        if None in (w1, w2, w3, w4):
+            return False
+        if w1 &lt; 0 or w2 &lt; 0 or w3 &lt; 0 or w4 &lt; 0:
+            return False
+        total = w1 + w2 + w3 + w4
+        return abs(total - 100.0) &lt; 1e-4 and total &gt; 0 and (w1 &gt; 0 or w2 &gt; 0 or w3 &gt; 0 or w4 &gt; 0)
+
+    @output
+    @render.ui
+    def scenario_validation_msg():
+        m = input.model_select()
+        d = input.depth_select()
+        if not m or not d:
+            return ui.HTML("&lt;div class='alert alert-info' role='alert'&gt;&lt;strong&gt;Notice:&lt;/strong&gt; Please select both a basecalling model and sequencing depth to view recommendations. (Selections begin unset.)&lt;/div&gt;")
+        return ui.HTML(f"&lt;div class='alert alert-success' role='status'&gt;Active Scenario: &lt;strong&gt;{m.upper()}&lt;/strong&gt; basecalling at &lt;strong&gt;{d}&lt;/strong&gt; depth.&lt;/div&gt;")
+
+    @output
+    @render.ui
+    def preset_description():
+        p = input.preset_select()
+        descriptions = {
+            "community_balanced": "Community-balanced: 28% sequence accuracy, 20% reference contiguity, 17% residual removal, 35% replicon recovery.",
+            "complete_replicon_recovery": "Complete-replicon-recovery: Enforces ≥95% coverage on all reference replicons; ranks eligible tools with 43% accuracy, 31% contiguity, 26% residual removal.",
+            "sequence_accurate_assembly": "Sequence-accurate-assembly: Prioritizes base-level sequence fidelity with 50% accuracy weight.",
+            "custom": "Custom Priorities: Specify your own percentage weights totaling 100% and toggle non-compensatory gates."
+        }
+        desc = descriptions.get(p, "")
+        return ui.tags.div({"class": "alert alert-secondary", "style": "margin-bottom: 0; padding: 8px 12px; font-size: 0.9rem;"}, desc)
+
+    @output
+    @render.ui
+    def weight_total_indicator():
+        w1 = input.w_acc()
+        w2 = input.w_cont()
+        w3 = input.w_res()
+        w4 = input.w_rep()
+        if None in (w1, w2, w3, w4):
+            return ui.HTML("&lt;div style='color: #dc2626; font-size: 0.9rem; margin-top: 4px;'&gt;⚠ Please enter valid numeric weights — &lt;em&gt;Ranking paused&lt;/em&gt;&lt;/div&gt;")
+        if w1 &lt; 0 or w2 &lt; 0 or w3 &lt; 0 or w4 &lt; 0:
+            return ui.HTML("&lt;div style='color: #dc2626; font-size: 0.9rem; margin-top: 4px;'&gt;⚠ Weights must be non-negative — &lt;em&gt;Ranking paused&lt;/em&gt;&lt;/div&gt;")
+        total = w1 + w2 + w3 + w4
+        if total == 0:
+            return ui.HTML("&lt;div style='color: #dc2626; font-size: 0.9rem; margin-top: 4px;'&gt;⚠ At least one criterion weight must be greater than zero — &lt;em&gt;Ranking paused&lt;/em&gt;&lt;/div&gt;")
+        diff = total - 100.0
+
+        def _fmt(val):
+            return f"{int(round(val))}%" if abs(val - round(val)) &lt; 1e-4 else f"{val:.1f}%"
+
+        if abs(diff) &lt; 1e-4:
+            return ui.HTML("&lt;div style='color: #16a34a; font-size: 0.9rem; margin-top: 4px;'&gt;✓ Total: &lt;strong&gt;100%&lt;/strong&gt;&lt;/div&gt;")
+        elif diff &lt; 0:
+            return ui.HTML(f"&lt;div style='color: #dc2626; font-size: 0.9rem; margin-top: 4px;'&gt;⚠ Total: &lt;strong&gt;{_fmt(total)}&lt;/strong&gt; ({_fmt(abs(diff))} remaining to allocate) — &lt;em&gt;Ranking paused&lt;/em&gt;&lt;/div&gt;")
+        else:
+            return ui.HTML(f"&lt;div style='color: #dc2626; font-size: 0.9rem; margin-top: 4px;'&gt;⚠ Total: &lt;strong&gt;{_fmt(total)}&lt;/strong&gt; ({_fmt(diff)} above 100%) — &lt;em&gt;Ranking paused&lt;/em&gt;&lt;/div&gt;")
+
+    @reactive.Calc
+    def evaluated_results():
+        m = input.model_select()
+        d = input.depth_select()
+        if not m or not d or not weights_valid():
+            return [], [], []
+
+        df = load_metrics_data()
+        return calculate_scenario_rankings(
+            df=df,
+            model=m,
+            depth=d,
+            weight_accuracy=input.w_acc() or 0,
+            weight_contiguity=input.w_cont() or 0,
+            weight_residual=input.w_res() or 0,
+            weight_replicon=input.w_rep() or 0,
+            gate_complete=input.gate_complete(),
+            gate_zero_hits=input.gate_zero_hits(),
+        )
+
+    @output
+    @render.ui
+    def shortlist_content():
+        m = input.model_select()
+        d = input.depth_select()
+        if not m or not d:
+            return ui.HTML("&lt;div class='alert alert-info' role='status'&gt;&lt;strong&gt;Notice:&lt;/strong&gt; Please select both a basecalling model and sequencing depth in step 1 to view recommendations. (Selections begin unset.)&lt;/div&gt;")
+
+        if not weights_valid():
+            return ui.HTML("&lt;div class='alert alert-warning' role='alert'&gt;&lt;strong&gt;Ranking paused:&lt;/strong&gt; Allocation must total exactly 100% before recommendations can be evaluated.&lt;/div&gt;")
+
+        eligible, excluded, insufficient = evaluated_results()
+        if not eligible and not excluded and not insufficient:
+            return ui.HTML("&lt;p class='text-muted'&gt;No benchmark data found for this scenario.&lt;/p&gt;")
+
+        # Excluded combinations HTML
+        n_excluded = len(excluded)
+        if n_excluded == 0:
+            excluded_html = "&lt;details style='margin-top: 18px;'&gt;&lt;summary style='cursor: pointer; font-weight: 500; color: #475569;'&gt;Excluded / Ineligible Combinations (0)&lt;/summary&gt;&lt;p style='margin-top: 8px; font-size: 0.9rem; color: #64748b;'&gt;All evaluated combinations are currently eligible under active criteria.&lt;/p&gt;&lt;/details&gt;"
+        else:
+            ex_items = "".join(f"&lt;li&gt;&lt;strong&gt;{r['combo']}&lt;/strong&gt;: {'; '.join(r['reasons'])}&lt;/li&gt;" for r in excluded)
+            excluded_html = f"&lt;details style='margin-top: 18px;'&gt;&lt;summary style='cursor: pointer; font-weight: 500; color: #dc2626;'&gt;Excluded / Ineligible Combinations ({n_excluded})&lt;/summary&gt;&lt;ul style='margin-top: 8px; font-size: 0.9rem;'&gt;{ex_items}&lt;/ul&gt;&lt;/details&gt;"
+
+        # Insufficient data HTML
+        insufficient_html = ""
+        n_insufficient = len(insufficient)
+        if n_insufficient &gt; 0:
+            ins_items = "".join(f"&lt;li&gt;&lt;strong&gt;{r['combo']}&lt;/strong&gt;: {'; '.join(r['reasons'])}&lt;/li&gt;" for r in insufficient)
+            insufficient_html = f"&lt;details style='margin-top: 10px;' id='details-insufficient-data'&gt;&lt;summary style='cursor: pointer; font-weight: 500; color: #b45309;'&gt;Insufficient Benchmark Data ({n_insufficient})&lt;/summary&gt;&lt;ul style='margin-top: 8px; font-size: 0.9rem;'&gt;{ins_items}&lt;/ul&gt;&lt;/details&gt;"
+
+        if len(eligible) == 0:
+            return ui.HTML(f"""
+                &lt;div class='alert alert-warning' role='status' id='no-eligible-msg'&gt;
+                    &lt;strong&gt;No combinations meet requirements:&lt;/strong&gt; No evaluated combination meets the active eligibility requirements. All gates have been preserved; requirements are not automatically relaxed.
+                &lt;/div&gt;
+                &lt;div style='margin-bottom: 12px;'&gt;
+                    &lt;a id='download_recommendations_csv' class='btn btn-sm btn-outline-success shiny-download-link' href='' target='_blank' download='' role='button' title='Download complete reproducible recommendation state CSV'&gt;
+                        📥 Download CSV Export (All 17 Combinations)
+                    &lt;/a&gt;
+                &lt;/div&gt;
+                {excluded_html}
+                {insufficient_html}
+            """)
+
+        limit = len(eligible) if show_all.get() else 5
+        displayed_eligible = eligible[:limit]
+        if len(eligible) == 17:
+            btn_label = "Show Top 5 Only" if show_all.get() else "Reveal All 17 Combinations"
+        else:
+            btn_label = "Show Top 5 Only" if show_all.get() else f"Reveal All {len(eligible)} Combinations"
+
+        table_rows = []
+        for r in displayed_eligible:
+            near_tie_html = '&lt;br&gt;&lt;span class="near-tie-badge" title="Adjacent eligible results differ by less than 1.0 point (descriptive qualifier; not statistically equivalent)"&gt;similar overall scores&lt;/span&gt;' if r["is_near_tie"] else ""
+
+            warnings_html = ""
+            if r["warnings"]:
+                w_items = "".join(f"&lt;li&gt;{w}&lt;/li&gt;" for w in r["warnings"])
+                warnings_html = f"&lt;ul class='list-unstyled mb-0 small text-danger' style='font-size: 0.8rem;'&gt;{w_items}&lt;/ul&gt;"
+            else:
+                warnings_html = "&lt;span class='text-success small' style='font-size: 0.8rem;'&gt;✓ Clean&lt;/span&gt;"
+
+            row_html = f"""
+            &lt;tr&gt;
+                &lt;td class='text-center fw-bold'&gt;{r['rank']}&lt;/td&gt;
+                &lt;td&gt;&lt;strong&gt;{r['combo']}&lt;/strong&gt;&lt;/td&gt;
+                &lt;td class='text-center'&gt;&lt;strong style='font-size: 1.05rem;'&gt;{r['display_score']}&lt;/strong&gt;{near_tie_html}&lt;/td&gt;
+                &lt;td&gt;
+                    &lt;div class='fw-bold'&gt;{r['accuracy']}&lt;/div&gt;
+                    &lt;div class='text-muted small' style='font-size: 0.8rem;'&gt;{r['mean_error_rate']:.2f} err/100kbp&lt;br&gt;({r['mean_mismatches']:.2f} mm, {r['mean_indels']:.2f} indel)&lt;/div&gt;
+                &lt;/td&gt;
+                &lt;td&gt;
+                    &lt;div class='fw-bold'&gt;{r['contiguity']}&lt;/div&gt;
+                    &lt;div class='text-muted small' style='font-size: 0.8rem;'&gt;auNGA: {r['mean_aunga']:.3f}&lt;/div&gt;
+                &lt;/td&gt;
+                &lt;td&gt;
+                    &lt;div class='fw-bold'&gt;{r['residual']}&lt;/div&gt;
+                    &lt;div class='text-muted small' style='font-size: 0.8rem;'&gt;{r['t_hits']} hit(s) ({r['affected_residual_isolates']} affected, {r['clean_isolates']}/13 clean)&lt;/div&gt;
+                &lt;/td&gt;
+                &lt;td&gt;
+                    &lt;div class='fw-bold'&gt;{r['replicon']}&lt;/div&gt;
+                    &lt;div class='text-muted small' style='font-size: 0.8rem;'&gt;{r['t_miss']} missed ({r['full_missed']} full, {r['partial_missed']} partial; {r['affected_replicon_isolates']} affected)&lt;/div&gt;
+                &lt;/td&gt;
+                &lt;td&gt;{warnings_html}&lt;/td&gt;
+            &lt;/tr&gt;
+            """
+            table_rows.append(row_html)
+
+        tbody_html = "".join(table_rows)
+
+        return ui.HTML(f"""
+            &lt;div style='margin-bottom: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;'&gt;
+                &lt;button id='btn_reveal_all' type='button' class='btn btn-sm btn-outline-primary action-button'&gt;{btn_label}&lt;/button&gt;
+                &lt;a id='download_recommendations_csv' class='btn btn-sm btn-outline-success shiny-download-link' href='' target='_blank' download='' role='button' title='Download complete reproducible recommendation state CSV'&gt;
+                    📥 Download CSV Export (All 17 Combinations)
+                &lt;/a&gt;
+            &lt;/div&gt;
+            &lt;div class='table-responsive'&gt;
+                &lt;table class='table table-hover table-striped table-bordered ranking-table align-middle' aria-label='Recommendation Shortlist'&gt;
+                    &lt;thead&gt;
+                        &lt;tr&gt;
+                            &lt;th scope='col' class='text-center' style='width: 6%;'&gt;Rank&lt;/th&gt;
+                            &lt;th scope='col' style='width: 16%;'&gt;Combination&lt;/th&gt;
+                            &lt;th scope='col' class='text-center' style='width: 13%;'&gt;Preference Score&lt;/th&gt;
+                            &lt;th scope='col' style='width: 17%;'&gt;Sequence Accuracy&lt;/th&gt;
+                            &lt;th scope='col' style='width: 15%;'&gt;Reference Contiguity&lt;/th&gt;
+                            &lt;th scope='col' style='width: 16%;'&gt;Residual Removal&lt;/th&gt;
+                            &lt;th scope='col' style='width: 17%;'&gt;Replicon Recovery&lt;/th&gt;
+                            &lt;th scope='col'&gt;Diagnostics&lt;/th&gt;
+                        &lt;/tr&gt;
+                    &lt;/thead&gt;
+                    &lt;tbody&gt;
+                        {tbody_html}
+                    &lt;/tbody&gt;
+                &lt;/table&gt;
+            &lt;/div&gt;
+            {excluded_html}
+            {insufficient_html}
+        """)
+
+    @output
+    @render.ui
+    def selected_combo_detail():
+        m = input.model_select()
+        d = input.depth_select()
+        if not m or not d:
+            return ui.HTML("&lt;div class='text-muted' style='font-size: 0.95rem; font-style: italic;'&gt;Select a scenario in step 1 to inspect per-isolate evidence and diagnostics.&lt;/div&gt;")
+
+        eligible, _, _ = evaluated_results()
+        if not eligible:
+            return ui.HTML("&lt;div class='alert alert-secondary' style='font-size: 0.95rem;'&gt;No combination meets active eligibility requirements. Adjust gates or priorities to inspect combination details.&lt;/div&gt;")
+
+        # Determine target combination based on user dropdown selection or leader fallback
+        selected_key = input.selected_combo()
+        target = None
+        if selected_key:
+            for item in eligible:
+                if item["combo"] == selected_key:
+                    target = item
+                    break
+        if target is None:
+            target = eligible[0]
+
+        if target.get("is_insufficient_data"):
+            return ui.HTML(f"""
+                &lt;div class='alert alert-warning' role='status'&gt;
+                    &lt;h4 style='margin-top: 0; font-size: 1.1rem; color: #92400e;'&gt;Combination: &lt;strong&gt;{target['combo']}&lt;/strong&gt; (Insufficient Benchmark Data)&lt;/h4&gt;
+                    &lt;p style='margin-bottom: 0;'&gt;{'; '.join(target['reasons'])}&lt;/p&gt;
+                &lt;/div&gt;
+            """)
+
+        isolate_metrics = target["raw_group"]
+        iso_acc_scores = target["isolate_acc_scores"]
+        iso_cont_scores = target["isolate_cont_scores"]
+
+        if target["is_eligible"]:
+            rank_display = f"Rank {target['rank']} &amp;nbsp;|&amp;nbsp; Preference Score: &lt;strong&gt;{target['display_score']}&lt;/strong&gt;"
+        else:
+            rank_display = f"&lt;span class='text-danger fw-bold'&gt;Excluded from ranking&lt;/span&gt; &amp;nbsp;|&amp;nbsp; Evaluated Score: {target['display_score']}"
+
+        # Concrete warnings box
+        if target["warnings"]:
+            w_list = "".join(f"&lt;li style='margin-bottom: 3px;'&gt;&lt;strong&gt;⚠ [Warning]&lt;/strong&gt; {w}&lt;/li&gt;" for w in target["warnings"])
+            warnings_box = f"""
+                &lt;div style='background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 10px 14px; margin-top: 12px; border-radius: 4px;'&gt;
+                    &lt;div style='font-weight: 600; color: #991b1b; margin-bottom: 4px; font-size: 0.9rem;'&gt;Detected Weakness &amp; Event Warnings:&lt;/div&gt;
+                    &lt;ul class='list-unstyled mb-0' style='font-size: 0.85rem; color: #b91c1c;'&gt;
+                        {w_list}
+                    &lt;/ul&gt;
+                &lt;/div&gt;
+            """
+        else:
+            warnings_box = """
+                &lt;div style='background-color: #f0fdf4; border-left: 4px solid #22c55e; padding: 10px 14px; margin-top: 12px; border-radius: 4px;'&gt;
+                    &lt;span class='text-success fw-bold' style='font-size: 0.9rem;'&gt;✓ [Clean] No warnings detected for this combination across all 13 isolates.&lt;/span&gt;
+                &lt;/div&gt;
+            """
+
+        # Supporting diagnostics box
+        supporting_box = f"""
+            &lt;div style='background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; margin-top: 12px;'&gt;
+                &lt;div style='font-weight: 600; color: #334155; font-size: 0.9rem; margin-bottom: 4px;'&gt;
+                    Supporting Diagnostics (Inspected without changing the four primary criteria):
+                &lt;/div&gt;
+                &lt;div style='font-size: 0.85rem; color: #475569;'&gt;
+                    Duplication Ratio: &lt;strong&gt;{target['mean_duplication_ratio']:.3f}&lt;/strong&gt; (cohort mean) &amp;nbsp;|&amp;nbsp;
+                    Misassemblies: &lt;strong&gt;{target['total_misassemblies']}&lt;/strong&gt; (cohort total events) &amp;nbsp;|&amp;nbsp;
+                    Error Components: &lt;strong&gt;{target['mean_mismatches']:.2f}&lt;/strong&gt; mm/100kbp, &lt;strong&gt;{target['mean_indels']:.2f}&lt;/strong&gt; indels/100kbp (Combined: &lt;strong&gt;{target['mean_error_rate']:.2f}&lt;/strong&gt;/100kbp)
+                &lt;/div&gt;
+            &lt;/div&gt;
+        """
+
+        # SVG Dot plots
+        acc_svg = render_dot_plot_svg(
+            title="Sequence Accuracy: Per-Isolate Scores (0–100 scale)",
+            plot_id="accuracy-dot-plot",
+            isolate_scores=iso_acc_scores,
+            cohort_mean=target["accuracy"],
+        )
+        cont_svg = render_dot_plot_svg(
+            title="Reference Contiguity: Per-Isolate Scores (0–100 scale)",
+            plot_id="contiguity-dot-plot",
+            isolate_scores=iso_cont_scores,
+            cohort_mean=target["contiguity"],
+        )
+
+        sorted_samples = sorted(iso_acc_scores.keys())
+        acc_text_rows = "".join(
+            f"&lt;tr&gt;&lt;td&gt;&lt;code&gt;{s}&lt;/code&gt;&lt;/td&gt;&lt;td&gt;{iso_acc_scores[s]:.1f}&lt;/td&gt;&lt;td&gt;{iso_acc_scores[s] - target['accuracy']:+.1f}&lt;/td&gt;&lt;/tr&gt;"
+            for s in sorted_samples
+        )
+        acc_text_interp = f"""
+            &lt;div id='text-interpretation-accuracy' class='text-interpretation-box'&gt;
+                &lt;details&gt;
+                    &lt;summary style='cursor: pointer; font-weight: 600;'&gt;Textual Interpretation: Sequence Accuracy Scores by Isolate (Cohort Mean: {target['accuracy']:.1f})&lt;/summary&gt;
+                    &lt;p style='margin-top: 6px; margin-bottom: 8px;'&gt;Isolate accuracy scores on fixed 0–100 scale (100 = 0 errors, 0 = ≥10 errors/100kbp) with departure from cohort mean {target['accuracy']:.1f}:&lt;/p&gt;
+                    &lt;div class='table-responsive'&gt;
+                        &lt;table class='table table-sm table-striped mb-0' style='font-size: 0.8rem;' aria-label='Sequence accuracy per-isolate textual data'&gt;
+                            &lt;thead&gt;&lt;tr&gt;&lt;th&gt;Isolate&lt;/th&gt;&lt;th&gt;Accuracy Score&lt;/th&gt;&lt;th&gt;Difference from Cohort Mean&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+                            &lt;tbody&gt;{acc_text_rows}&lt;/tbody&gt;
+                        &lt;/table&gt;
+                    &lt;/div&gt;
+                &lt;/details&gt;
+            &lt;/div&gt;
+        """
+
+        cont_text_rows = "".join(
+            f"&lt;tr&gt;&lt;td&gt;&lt;code&gt;{s}&lt;/code&gt;&lt;/td&gt;&lt;td&gt;{iso_cont_scores[s]:.1f}&lt;/td&gt;&lt;td&gt;{iso_cont_scores[s] - target['contiguity']:+.1f}&lt;/td&gt;&lt;/tr&gt;"
+            for s in sorted_samples
+        )
+        cont_text_interp = f"""
+            &lt;div id='text-interpretation-contiguity' class='text-interpretation-box'&gt;
+                &lt;details&gt;
+                    &lt;summary style='cursor: pointer; font-weight: 600;'&gt;Textual Interpretation: Reference Contiguity Scores by Isolate (Cohort Mean: {target['contiguity']:.1f})&lt;/summary&gt;
+                    &lt;p style='margin-top: 6px; margin-bottom: 8px;'&gt;Isolate contiguity scores on fixed 0–100 scale (100 = auNGA ratio 1.0) with departure from cohort mean {target['contiguity']:.1f}:&lt;/p&gt;
+                    &lt;div class='table-responsive'&gt;
+                        &lt;table class='table table-sm table-striped mb-0' style='font-size: 0.8rem;' aria-label='Reference contiguity per-isolate textual data'&gt;
+                            &lt;thead&gt;&lt;tr&gt;&lt;th&gt;Isolate&lt;/th&gt;&lt;th&gt;Contiguity Score&lt;/th&gt;&lt;th&gt;Difference from Cohort Mean&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+                            &lt;tbody&gt;{cont_text_rows}&lt;/tbody&gt;
+                        &lt;/table&gt;
+                    &lt;/div&gt;
+                &lt;/details&gt;
+            &lt;/div&gt;
+        """
+
+        # Sparse events table (Residual hits &amp; Replicon losses)
+        sparse_rows = []
+        full_detail_rows = []
+        for _, row in isolate_metrics.iterrows():
+            sample_name = str(row["sample"])
+            aunga = float(row["auNGA_ratio"])
+            cont_score = iso_cont_scores.get(sample_name, 0.0)
+            err_rate = float(row["Mismatches per 100kbp"]) + float(row["Indels per 100kbp"])
+            acc_score = iso_acc_scores.get(sample_name, 0.0)
+            res_hits = int(row["contamination_count"])
+            missed_rep = int(row["total_missed"])
+            full_missed_count = int(row["full_missed"])
+            partial_missed_count = int(row["partial_missed"])
+            duplication_val = float(row["Duplication_ratio"]) if "Duplication_ratio" in row and pd.notna(row["Duplication_ratio"]) else 1.0
+            misassembly_val = int(row["misassemblies"]) if "misassemblies" in row and pd.notna(row["misassemblies"]) else 0
+            cov_str = str(row.get("all_contigs_coverage", ""))
+
+            # Sparse event status
+            if res_hits == 0:
+                res_status = "&lt;span class='text-success'&gt;0 hits [✓ Clean]&lt;/span&gt;"
+            else:
+                res_status = f"&lt;span class='text-danger fw-bold'&gt;⚠ {res_hits} hit(s) detected&lt;/span&gt;"
+
+            if missed_rep == 0:
+                rep_status = "&lt;span class='text-success'&gt;0 missed [✓ Intact]&lt;/span&gt;"
+            else:
+                rep_status = f"&lt;span class='text-danger fw-bold'&gt;⚠ {missed_rep} missed ({full_missed_count} full, {partial_missed_count} partial)&lt;/span&gt;"
+
+            sparse_rows.append(f"""
+                &lt;tr&gt;
+                    &lt;td&gt;&lt;code&gt;{sample_name}&lt;/code&gt;&lt;/td&gt;
+                    &lt;td&gt;{res_status}&lt;/td&gt;
+                    &lt;td&gt;{rep_status}&lt;/td&gt;
+                    &lt;td class='small text-muted' style='font-size: 0.75rem;'&gt;{cov_str}&lt;/td&gt;
+                &lt;/tr&gt;
+            """)
+
+            full_detail_rows.append(f"""
+                &lt;tr&gt;
+                    &lt;td&gt;&lt;code&gt;{sample_name}&lt;/code&gt;&lt;/td&gt;
+                    &lt;td&gt;{aunga:.3f} &lt;span class='text-muted'&gt;(score {cont_score:.1f})&lt;/span&gt;&lt;/td&gt;
+                    &lt;td&gt;{err_rate:.2f} &lt;span class='text-muted'&gt;({float(row['Mismatches per 100kbp']):.2f} mm, {float(row['Indels per 100kbp']):.2f} indel; score {acc_score:.1f})&lt;/span&gt;&lt;/td&gt;
+                    &lt;td&gt;{duplication_val:.3f}&lt;/td&gt;
+                    &lt;td&gt;{misassembly_val}&lt;/td&gt;
+                    &lt;td&gt;{res_hits}&lt;/td&gt;
+                    &lt;td&gt;{missed_rep} &lt;span class='text-muted'&gt;({full_missed_count}f, {partial_missed_count}p)&lt;/span&gt;&lt;/td&gt;
+                    &lt;td class='small text-muted' style='font-size: 0.75rem;'&gt;{cov_str}&lt;/td&gt;
+                &lt;/tr&gt;
+            """)
+
+        sparse_tbody = "".join(sparse_rows)
+        full_detail_tbody = "".join(full_detail_rows)
+
+        return ui.HTML(f"""
+            &lt;div style='background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 16px 18px; margin-bottom: 20px;'&gt;
+                &lt;h4 style='margin-top: 0; font-size: 1.15rem; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;'&gt;
+                    Combination Evidence: &lt;strong&gt;{target['combo']}&lt;/strong&gt; ({rank_display})
+                &lt;/h4&gt;
+                &lt;div style='font-size: 0.95rem; color: #334155; margin-top: 8px;'&gt;
+                    Contiguity: &lt;strong&gt;{target['contiguity']}&lt;/strong&gt; (mean auNGA: {target['mean_aunga']:.3f}) &amp;nbsp;|&amp;nbsp;
+                    Accuracy: &lt;strong&gt;{target['accuracy']}&lt;/strong&gt; ({target['mean_error_rate']:.2f} err/100kbp) &amp;nbsp;|&amp;nbsp;
+                    Residual Removal: &lt;strong&gt;{target['residual']}%&lt;/strong&gt; ({target['t_hits']} hit(s)) &amp;nbsp;|&amp;nbsp;
+                    Replicon Recovery: &lt;strong&gt;{target['replicon']}&lt;/strong&gt; ({target['t_miss']} missed)
+                &lt;/div&gt;
+                {supporting_box}
+                {warnings_box}
+            &lt;/div&gt;
+
+            &lt;!-- Per-Isolate Dot Plots Section --&gt;
+            &lt;div style='margin-bottom: 24px;'&gt;
+                &lt;h5 style='font-size: 1.05rem; font-weight: 600; color: #1e293b; margin-bottom: 4px;'&gt;
+                    Per-Isolate Dot Plots with Cohort Means:
+                &lt;/h5&gt;
+                &lt;p class='text-muted small' style='margin-bottom: 12px;'&gt;
+                    Plotted across all 13 reference bacterial isolates with cohort means indicated.
+                    No population confidence intervals or radar charts are presented as these 13 reference isolates constitute the entire benchmark cohort.
+                &lt;/p&gt;
+                &lt;div class='row'&gt;
+                    &lt;div class='col-12 col-xl-6'&gt;
+                        &lt;div class='dot-plot-container'&gt;
+                            {acc_svg}
+                            {acc_text_interp}
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class='col-12 col-xl-6'&gt;
+                        &lt;div class='dot-plot-container'&gt;
+                            {cont_svg}
+                            {cont_text_interp}
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;!-- Sparse Events Table Section --&gt;
+            &lt;div style='margin-bottom: 24px;'&gt;
+                &lt;h5 style='font-size: 1.05rem; font-weight: 600; color: #1e293b; margin-bottom: 4px;'&gt;
+                    Sparse-Event Evidence: Residual Hits &amp; Replicon Losses:
+                &lt;/h5&gt;
+                &lt;p class='text-muted small' style='margin-bottom: 8px;'&gt;
+                    Direct isolate-level event counts for residual adapter/barcode hits and reference replicon losses (&amp;lt;50% coverage):
+                &lt;/p&gt;
+                &lt;div class='table-responsive'&gt;
+                    &lt;table id='sparse-events-table' class='table table-sm table-striped table-bordered align-middle' style='font-size: 0.85rem;' aria-label='Sparse residual hit and replicon loss events per isolate'&gt;
+                        &lt;thead style='background-color: #f1f5f9;'&gt;
+                            &lt;tr&gt;
+                                &lt;th scope='col' style='width: 22%;'&gt;Isolate&lt;/th&gt;
+                                &lt;th scope='col' style='width: 26%;'&gt;Residual Adapter/Barcode Hits&lt;/th&gt;
+                                &lt;th scope='col' style='width: 26%;'&gt;Replicon Losses (&amp;lt;50% cov)&lt;/th&gt;
+                                &lt;th scope='col'&gt;Coverage Summary&lt;/th&gt;
+                            &lt;/tr&gt;
+                        &lt;/thead&gt;
+                        &lt;tbody&gt;
+                            {sparse_tbody}
+                        &lt;/tbody&gt;
+                        &lt;tfoot style='background-color: #f8fafc; font-weight: 600;'&gt;
+                            &lt;tr&gt;
+                                &lt;td&gt;Cohort Totals:&lt;/td&gt;
+                                &lt;td&gt;{target['t_hits']} hit(s) ({target['affected_residual_isolates']} affected, {target['clean_isolates']}/13 clean)&lt;/td&gt;
+                                &lt;td&gt;{target['t_miss']} missed ({target['full_missed']} full, {target['partial_missed']} partial; {target['affected_replicon_isolates']} affected)&lt;/td&gt;
+                                &lt;td class='text-muted small'&gt;Evaluated across 13 reference isolates&lt;/td&gt;
+                            &lt;/tr&gt;
+                        &lt;/tfoot&gt;
+                    &lt;/table&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;!-- Complete Isolate Breakdown Table --&gt;
+            &lt;details style='margin-bottom: 20px;'&gt;
+                &lt;summary style='cursor: pointer; font-weight: 600; color: #334155;'&gt;Complete Per-Isolate Benchmark Evidence &amp; Metrics Table (13 Isolates)&lt;/summary&gt;
+                &lt;div class='table-responsive' style='margin-top: 10px;'&gt;
+                    &lt;table class='table table-sm table-bordered' style='font-size: 0.85rem;' aria-label='Comprehensive per-isolate benchmark metrics'&gt;
+                        &lt;thead style='background-color: #f1f5f9;'&gt;
+                            &lt;tr&gt;
+                                &lt;th&gt;Isolate&lt;/th&gt;
+                                &lt;th&gt;auNGA Ratio (Contiguity)&lt;/th&gt;
+                                &lt;th&gt;Errors/100kbp (Accuracy)&lt;/th&gt;
+                                &lt;th&gt;Duplication Ratio&lt;/th&gt;
+                                &lt;th&gt;Misassemblies&lt;/th&gt;
+                                &lt;th&gt;Residual Hits&lt;/th&gt;
+                                &lt;th&gt;Missed Replicons&lt;/th&gt;
+                                &lt;th&gt;Coverage Summary&lt;/th&gt;
+                            &lt;/tr&gt;
+                        &lt;/thead&gt;
+                        &lt;tbody&gt;
+                            {full_detail_tbody}
+                        &lt;/tbody&gt;
+                    &lt;/table&gt;
+                &lt;/div&gt;
+            &lt;/details&gt;
+        """)
+
+    @render.download(
+        filename=lambda: f"qc_trimming_recommendations_{input.model_select()}_{input.depth_select()}_{input.preset_select()}.csv",
+        media_type="text/csv"
+    )
+    def download_recommendations_csv():
+        m = input.model_select()
+        d = input.depth_select()
+        if not m or not d or not weights_valid():
+            raise ValueError("Cannot generate CSV export: Scenario must be selected and weights must total 100%.")
+
+        df = load_metrics_data()
+        csv_content = generate_dashboard_csv_export(
+            df=df,
+            model=m,
+            depth=d,
+            preset=input.preset_select(),
+            weight_accuracy=input.w_acc() or 0,
+            weight_contiguity=input.w_cont() or 0,
+            weight_residual=input.w_res() or 0,
+            weight_replicon=input.w_rep() or 0,
+            gate_complete=input.gate_complete(),
+            gate_zero_hits=input.gate_zero_hits(),
+            config=app_config,
+        )
+        yield csv_content
+
+app = App(app_ui, server)</code></pre>
+
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

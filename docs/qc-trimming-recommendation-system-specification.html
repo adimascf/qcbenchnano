@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>qc-trimming-recommendation-system-specification – QC Benchmark for Nanopore Reads</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-adfb2833bc15652ec5881dc6381ea988.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-60eb8141d3f50090c0f52d36a83ed331.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-adfb2833bc15652ec5881dc6381ea988.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-e8a4c0895993354b54972b5f1e41c0e4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-58008ceab81c4fb57a6fd58a386c2ec9.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-e8a4c0895993354b54972b5f1e41c0e4.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">QC Benchmark for Nanopore Reads</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../tool_weighting.html"> 
+<span class="menu-text">QC Tool Selection</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../methods_and_robustness.html"> 
+<span class="menu-text">Methods &amp; Robustness</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#qctrimming-recommendation-system-specification" id="toc-qctrimming-recommendation-system-specification" class="nav-link active" data-scroll-target="#qctrimming-recommendation-system-specification">QC–trimming recommendation system specification</a>
+  <ul class="collapse">
+  <li><a href="#problem-statement" id="toc-problem-statement" class="nav-link" data-scroll-target="#problem-statement">Problem Statement</a></li>
+  <li><a href="#solution" id="toc-solution" class="nav-link" data-scroll-target="#solution">Solution</a></li>
+  <li><a href="#user-stories" id="toc-user-stories" class="nav-link" data-scroll-target="#user-stories">User Stories</a></li>
+  <li><a href="#implementation-decisions" id="toc-implementation-decisions" class="nav-link" data-scroll-target="#implementation-decisions">Implementation Decisions</a></li>
+  <li><a href="#testing-decisions" id="toc-testing-decisions" class="nav-link" data-scroll-target="#testing-decisions">Testing Decisions</a></li>
+  <li><a href="#out-of-scope" id="toc-out-of-scope" class="nav-link" data-scroll-target="#out-of-scope">Out of Scope</a></li>
+  <li><a href="#further-notes" id="toc-further-notes" class="nav-link" data-scroll-target="#further-notes">Further Notes</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+
+<section id="qctrimming-recommendation-system-specification" class="level1">
+<h1>QC–trimming recommendation system specification</h1>
+<p><strong>Scoring specification:</strong> 1.0</p>
+<p><strong>Parent Specification:</strong> <a href="https://github.com/adimascf/biox7021/issues/10">GitHub Issue #10</a></p>
+<p><strong>Status:</strong> Proposed for coauthor review</p>
+<p><strong>Benchmark scope:</strong> 13 bacterial reference isolates, 17 QC–trimming combinations, HAC/SUP basecalling, and 20×/100× depth</p>
+<p><strong>Source-data baseline:</strong> 884 complete scenario–isolate–combination observations at project commit <code>4d6b8cb1d482e5066f9ca575ebd3b67af4a32562</code></p>
+<section id="problem-statement" class="level2">
+<h2 class="anchored" data-anchor-id="problem-statement">Problem Statement</h2>
+<p>Researchers choosing Oxford Nanopore read quality-control and adapter-trimming methods face genuine trade-offs. A combination that improves sequence accuracy may lose small, low-copy plasmids; another may preserve all reference replicons but retain adapter or barcode sequence. No single combination is therefore best independently of the researcher’s priorities.</p>
+<p>The current analysis does not yet provide a methodologically stable decision aid. It rescales some metrics relative to whichever alternatives happen to be present and combines them geometrically. Consequently, the same raw result can receive a different score after filtering, a small difference can be magnified into the full scoring range, and the geometric zero workaround introduces an undocumented balance preference. The paper and published dashboard also implement different grouping and aggregation sequences, so they can disagree despite ostensibly using the same metrics and weights.</p>
+<p>The project needs one transparent scoring specification that:</p>
+<ul>
+<li>preserves the biological meaning of four distinct assembly criteria;</li>
+<li>maps their indicators to comparable, fixed 0–100 preference scales;</li>
+<li>separates compensatory preferences from non-compensatory requirements;</li>
+<li>supports the rounded community-survey priorities without presenting them as universal values;</li>
+<li>exposes important weaknesses and isolate-level variation rather than hiding them in a mean;</li>
+<li>gives an individual researcher a simple way to apply different priorities; and</li>
+<li>produces identical results in the paper and dashboard from pinned benchmark evidence.</li>
+</ul>
+<p>The recommendation scope is deliberately narrow. It covers only the 13 named bacterial reference isolates and 884 observations in the current benchmark. It must not imply that the resulting order is a universal ranking of QC or adapter-trimming software.</p>
+</section>
+<section id="solution" class="level2">
+<h2 class="anchored" data-anchor-id="solution">Solution</h2>
+<p>Provide a versioned, repository-name-independent recommendation system built around one canonical scoring implementation. A user first selects the basecalling model and sequencing depth that match their experiment. The system then evaluates all 17 QC–trimming combinations in that scenario using four fixed criterion scores: reference-aware contiguity, sequence accuracy, residual adapter/barcode removal, and reference-replicon recovery.</p>
+<p>The user may start from a clearly described preset or enter four percentages that total 100. A normalized weighted arithmetic mean produces a preference-alignment score. Eligibility gates are applied separately so that an unacceptable result cannot be compensated for by strong performance elsewhere. The dashboard initially presents the five highest-scoring eligible combinations, while preserving access to all evaluated and excluded combinations.</p>
+<p>Every recommendation presents the raw evidence behind its normalized scores, identifies detected failures, and provides isolate-level details. The paper retains its raw metric-specific figures and separately reports the Community-balanced composite result for each supported scenario. A Methods &amp; robustness page documents the equations, assumptions, provenance, and repository-only stability checks.</p>
+</section>
+<section id="user-stories" class="level2">
+<h2 class="anchored" data-anchor-id="user-stories">User Stories</h2>
+<ol type="1">
+<li>As a bacterial genomics researcher, I want to state whether my reads were HAC- or SUP-basecalled, so that I am not shown evidence from an irrelevant basecalling model.</li>
+<li>As a bacterial genomics researcher, I want to state whether my data resemble 20× or 100× depth, so that the recommendation matches an evaluated sequencing-depth scenario.</li>
+<li>As a dashboard user, I want both scenario selections to begin unset, so that I cannot accidentally interpret a default scenario as my own.</li>
+<li>As a dashboard user, I want unsupported scenarios such as 50× to be absent, so that every offered choice corresponds to complete benchmark evidence.</li>
+<li>As a researcher seeking a general starting point, I want a Community-balanced preset, so that I can use the rounded priorities submitted in the community survey.</li>
+<li>As a researcher who cannot tolerate reference-replicon loss, I want a Complete-replicon-recovery preset, so that incomplete combinations are excluded before ranking.</li>
+<li>As a researcher prioritising base-level fidelity, I want a Sequence-accurate-assembly preset, so that sequence errors dominate the recommendation without erasing other consequences.</li>
+<li>As a researcher with different downstream needs, I want Custom priorities, so that the survey average does not dictate my decision.</li>
+<li>As a custom-priority user, I want to set any criterion to zero, so that a consequence irrelevant to my use case has no effect on my overall score.</li>
+<li>As a custom-priority user, I want my four percentages to total exactly 100, so that their relative influence is explicit and communicable.</li>
+<li>As a custom-priority user, I want to see how far my allocation is below or above 100, so that I can correct an invalid entry.</li>
+<li>As a custom-priority user, I want ranking to pause while my percentages are invalid, so that a partial allocation is not silently reinterpreted.</li>
+<li>As a custom-priority user, I want optional complete-recovery and zero-residual-hit requirements, so that I can express non-compensatory constraints separately from preferences.</li>
+<li>As a preset user, I want any manual edit to switch the state visibly to Custom, so that I know I am no longer using the published preset unchanged.</li>
+<li>As a dashboard user, I want a reset-to-community action, so that I can easily return to the published reference allocation.</li>
+<li>As a dashboard user, I want the recommendation list ordered by overall preference alignment, so that the primary result is simple to interpret.</li>
+<li>As a dashboard user, I want the five highest-scoring eligible combinations shown first, so that I am not overwhelmed by 17 alternatives.</li>
+<li>As a dashboard user, I want to reveal all evaluated combinations, so that the shortlist does not hide evidence.</li>
+<li>As a dashboard user, I want excluded combinations retained in a collapsed section with reasons, so that absence is not mistaken for lack of evaluation.</li>
+<li>As a dashboard user, I want the system to preserve my gates when no combination is eligible, so that it does not recommend an option that violates my requirements.</li>
+<li>As a dashboard user, I want scores displayed to one decimal place but calculated at full precision, so that presentation is readable without changing the ranking.</li>
+<li>As a dashboard user, I want adjacent results less than one point apart identified as similar overall scores, so that a small numerical difference is not overstated.</li>
+<li>As a dashboard user, I want all four criterion scores visible even when one has zero weight, so that I can see a combination’s unselected weaknesses.</li>
+<li>As a dashboard user, I want the mean combined error-event rate shown beside the sequence-accuracy score, so that the normalized value remains interpretable.</li>
+<li>As a dashboard user, I want mismatches and indels shown separately in supporting detail, so that an indel-heavy result is not concealed by their combined rate.</li>
+<li>As a dashboard user, I want the mean auNGA ratio shown beside the contiguity score, so that I can see the departure from the reference target.</li>
+<li>As a dashboard user, I want total residual adapter/barcode hits and affected isolates reported together, so that concentrated and widespread events are distinguishable.</li>
+<li>As a dashboard user, I want full and partial reference-replicon losses reported separately, so that complete absence is distinguishable from severe incompleteness.</li>
+<li>As a dashboard user, I want the absolute number of missed or severely incomplete replicons reported, so that the loss is not diluted by an isolate’s total replicon count.</li>
+<li>As a dashboard user, I want concrete warnings for detected hits, replicon losses, and isolate-specific weakness, so that a high overall score cannot conceal a material failure.</li>
+<li>As a dashboard user, I want labelled per-isolate accuracy and contiguity results, so that I can identify which reference genome drives inconsistency.</li>
+<li>As a dashboard user, I want sparse event details in a compact table, so that contamination and replicon failures are legible without a misleading continuous plot.</li>
+<li>As a dashboard user, I want no qualitative labels such as good or excellent, so that the preference-alignment score is not mistaken for a validated quality grade.</li>
+<li>As a dashboard user, I want an explanation of the benchmark’s limited scope, so that I do not generalise its recommendations to all bacterial isolates or sequencing protocols.</li>
+<li>As a dashboard user, I want a separate Methods &amp; robustness page, so that I can inspect the equations and assumptions without cluttering the main decision workflow.</li>
+<li>As a dashboard user, I want to download all 17 results in their displayed order, so that my exported record matches what I saw.</li>
+<li>As a dashboard user, I want the export to include scenario, weights, gates, scores, ranks, warnings, and provenance, so that I can reproduce and explain the decision.</li>
+<li>As a paper reader, I want raw metric-specific figures retained, so that the empirical observations remain visible independently of the preference model.</li>
+<li>As a paper reader, I want each metric panel ordered appropriately for its own scenario, so that the clearest raw-metric presentation is not constrained by dashboard ordering.</li>
+<li>As a paper reader, I want the Community-balanced composite results reported separately, so that I can distinguish empirical measurements from survey-weighted decision analysis.</li>
+<li>As a paper reader, I want community weights described as rounded priorities from 22 respondents, so that they are not presented as objective or population-representative truths.</li>
+<li>As a coauthor, I want paper and dashboard results generated through one scoring contract, so that the two outputs cannot silently disagree.</li>
+<li>As a coauthor, I want the scoring rules versioned independently of cosmetic site changes, so that methodological changes are traceable.</li>
+<li>As a coauthor, I want the source evidence pinned to a commit or content hash, so that rankings do not change when a repository branch advances.</li>
+<li>As a maintainer, I want repository ownership and naming supplied as deployment configuration, so that a repository rename does not break data loading or provenance links.</li>
+<li>As a maintainer, I want malformed or incomplete benchmark inputs rejected explicitly, so that an invalid combination cannot receive an apparently valid ranking.</li>
+<li>As a maintainer, I want the human-readable replicon coverage field cross-checked against its count columns, so that parsing errors cannot silently alter gates or scores.</li>
+<li>As a maintainer, I want the dashboard source version-controlled rather than retaining only compiled output, so that future changes can be reviewed and reproduced.</li>
+<li>As an implementer, I want behavioural acceptance tests at the canonical scoring boundary, so that I can modify internals without changing agreed outcomes.</li>
+<li>As an implementer, I want small canonical fixtures shared by the paper and dashboard checks, so that grouping, clipping, gates, and rounding remain identical.</li>
+<li>As a project reviewer, I want repository-only robustness reports for the selected modelling decisions, so that assumptions can be inspected without expanding the main paper.</li>
+<li>As a project reviewer, I want observed respondent-specific rankings described without inferential population claims, so that preference heterogeneity is represented honestly.</li>
+</ol>
+</section>
+<section id="implementation-decisions" class="level2">
+<h2 class="anchored" data-anchor-id="implementation-decisions">Implementation Decisions</h2>
+<ol type="1">
+<li><p><strong>Supported evidence domain.</strong> Version 1.0 accepts exactly the evaluated scenario dimensions: <code>hac</code> or <code>sup</code> basecalling and <code>20x</code> or <code>100x</code> sequencing depth. The reference dataset comprises 17 QC–trimming combinations and 13 named bacterial reference isolates in each scenario, for 884 unique observations. The canonical observation key is scenario, isolate, and QC–trimming combination.</p></li>
+<li><p><strong>Required scenario selection.</strong> Basecalling model and depth have no initial defaults. Ranking begins only after both have been selected. After a valid scenario is selected, Community-balanced becomes the initial preference preset.</p></li>
+<li><p><strong>Canonical scoring boundary.</strong> One pure, tested Python scoring module owns input validation, replicon-coverage parsing, criterion value functions, cohort aggregation, presets, gates, warnings, ranks, near-tie status, provenance, and export-ready records. It accepts the benchmark table plus an explicit scenario and preference configuration and returns the complete ordered result set. Paper analyses call this boundary directly. The dashboard imports the same implementation where practical; otherwise it consumes canonical criterion outputs and must pass parity fixtures produced at the same boundary.</p></li>
+<li><p><strong>Fixed value functions.</strong> Criterion transformations are fixed across all scenarios, filters, presets, and displayed alternatives. They are never recalculated from a selected group’s minimum or maximum. This gives a raw value the same interpretation in HAC/SUP and 20×/100× results and prevents rank reversal caused only by adding or removing alternatives.</p></li>
+<li><p><strong>Reference-aware contiguity.</strong> For isolate auNGA ratio (r), the criterion score is</p>
+<p>[ S_{}(r)=100(0,1-|r-1|). ]</p>
+<p>Equal departures above and below the reference target of 1.0 receive equal penalties. This is a deliberate project value judgement, not a claim that fragmentation and duplication have identical biological mechanisms. Supporting diagnostics such as duplication ratio and misassemblies remain available for interpretation but do not create additional primary sliders.</p></li>
+<li><p><strong>Sequence accuracy.</strong> Let (M) and (I) be QUAST mismatch and indel events per 100 kbp of aligned assembly sequence. The combined error-event rate is (E=M+I), and</p>
+<p>[ S_{}(M,I)=100,(1-,0,1). ]</p>
+<p>Zero events score 100 and ten or more combined events per 100 kbp score 0. Each reported event receives equal primary-score treatment because the project has no validated biological conversion factor between mismatch and indel consequences. The dashboard retains both components and warns through supporting detail when errors are indel-heavy. The denominator ten is a frozen benchmark-policy calibration, not a universal ONT or bacterial quality threshold.</p></li>
+<li><p><strong>Residual adapter/barcode removal.</strong> A benchmark isolate scores 100 when it has zero resolved residual adapter/barcode hits and 0 when it has one or more. The cohort criterion score is the mean of those binary isolate scores, equivalently the percentage of the 13 isolates with zero detected hits. The raw summaries additionally report total hits and affected isolates. The paper may visualise summed hits, but summed hits are not the normalized criterion score.</p></li>
+<li><p><strong>Residual-hit terminology and evidence.</strong> A scored event is a resolved alignment to a defined ONT adapter or barcode region passing the active workflow thresholds of at least 90% identity and at least 90% region coverage. It is called a residual adapter/barcode hit, not generic biological contamination. The specification relies on the project’s existing detection validation and does not require a new validation study.</p></li>
+<li><p><strong>Reference-replicon recovery.</strong> A missed or severely incomplete reference replicon has less than 50% reference coverage. A fully missed replicon has 0% coverage; a partially missed replicon has greater than 0% but less than 50% coverage. Exactly 50% is not included. For one QC–trimming combination and scenario, let (T) be the absolute count of qualifying replicons summed across all 13 isolates. Then</p>
+<p>[ S_{}(T)=100(0,1-). ]</p>
+<p>Totals of zero, one, two, and at least three therefore score 100, 66.7, 33.3, and 0 before display rounding. Each missed replicon has the same effect regardless of how many replicons its isolate contains. The dashboard also reports affected isolates plus full and partial losses.</p></li>
+<li><p><strong>Existing replicon-data contract.</strong> No upstream pipeline schema change is required. The canonical scorer uses the numeric full, partial, and total missed columns for the primary score and parses the existing semicolon-delimited all-replicon coverage field for complete-recovery gates. It validates the text structure and verifies that coverage-derived below-50% counts equal the supplied count columns. Malformed text, impossible coverage, or disagreement is an explicit data error.</p></li>
+<li><p><strong>Cohort aggregation.</strong> Contiguity and accuracy are scored per isolate and then averaged across the 13-isolate cohort. Residual-hit removal is the mean binary clean-isolate score. Replicon recovery is intentionally the scenario-level absolute-loss score rather than a mean fraction recovered. The four resulting values are cohort-level criterion scores.</p></li>
+<li><p><strong>Weighted arithmetic aggregation.</strong> For active criterion weights (w_k) and cohort criterion scores (S_k), the preference-alignment score is</p></li>
+</ol>
+<p>[ S_{}=. ]</p>
+<p>Custom weights must be non-negative percentages totalling exactly 100, and at least one criterion must be non-zero. The arithmetic model makes trade-offs explicit. Non-compensatory requirements are represented by eligibility gates rather than by a geometric mean or epsilon/shift workaround.</p>
+<ol start="13" type="1">
+<li><p><strong>Community-balanced preset.</strong> The preset uses the rounded survey allocations: 28% sequence accuracy, 20% reference-aware contiguity, 17% residual adapter/barcode removal, and 35% reference-replicon recovery. These sum to 100. The preset has no automatic gate and is described as the priorities of the surveyed group, not an objective optimum.</p></li>
+<li><p><strong>Complete-replicon-recovery preset.</strong> Every expected reference replicon must have at least 95% reference coverage. Coverage alone does not claim circularisation or structural validation. Among eligible combinations, ranking uses 43% sequence accuracy, 31% reference-aware contiguity, and 26% residual adapter/barcode removal. Replicon recovery is enforced by the gate and is not counted again as a ranking advantage.</p></li>
+<li><p><strong>Sequence-accurate-assembly preset.</strong> This preset uses 50% sequence accuracy, 14% reference-aware contiguity, 12% residual adapter/barcode removal, and 24% reference-replicon recovery. It has no additional automatic gate.</p></li>
+<li><p><strong>Custom-priorities preset.</strong> The user enters four percentages. Both optional advanced gates are off initially. The complete-recovery gate applies the same 95%-per-replicon rule as the corresponding preset. The zero-residual-hit gate requires zero detected hits across all 13 isolates. Editing any preset weight or gate changes the visible mode to Custom; selecting a named preset replaces all weights and gate states.</p></li>
+<li><p><strong>Eligibility before ranking.</strong> Gates are evaluated before scores are ordered. Failed combinations are not assigned a rank. If every combination fails, the system preserves the user’s constraints, reports that no combination meets them, and lists the reasons. It never weakens a gate automatically.</p></li>
+<li><p><strong>Missing and invalid evidence.</strong> Each scenario–combination requires all 13 named isolates and every indicator needed by an active or displayed criterion. A combination with incomplete evidence is marked <code>insufficient benchmark data</code>, receives no rank, and appears with an explicit reason. Values are not imputed and weights are not redistributed. Invalid values, duplicate observation keys, unexpected scenario values, and mismatched replicon representations fail validation explicitly.</p></li>
+<li><p><strong>Ranking precision and near ties.</strong> Eligible combinations are ordered by the full-precision preference-alignment score. Scores are displayed to one decimal place. Adjacent scores differing by less than 1.0 are labelled <code>similar overall scores</code>; this is a communication qualifier, not a statistical-equivalence claim. Exact score ties share the same rank, and their stable display order is determined by the QC–trimming identifier solely for reproducibility.</p></li>
+<li><p><strong>Warnings.</strong> Every residual-hit event and every missed or severely incomplete replicon generates a concrete count-and-prevalence warning. Accuracy or contiguity is labelled variable when the lowest isolate score is at least 25 points below its cohort mean. Warnings do not create a second ranking method and remain visible even if their criterion has zero weight.</p></li>
+<li><p><strong>Raw summaries.</strong> Each result shows the four normalized criterion scores and the underlying evidence: combined errors per 100 kbp with mismatch and indel components; mean auNGA ratio; clean and affected isolate counts plus total residual hits; and total, full, and partial replicon losses plus affected isolates. Supporting duplication ratio and misassembly information may appear in detail without becoming primary criteria.</p></li>
+<li><p><strong>Dashboard interaction.</strong> The main experience is one guided page: required scenario selection; preset and percentage allocation; ranked shortlist; selected-combination details; and a compact methodology disclosure. The initial list contains the five highest-ranked eligible alternatives. Users may reveal all 17. Ineligible and insufficient-data alternatives appear afterward in a collapsed section with no rank and an explicit reason.</p></li>
+<li><p><strong>Fixed display order.</strong> The recommendation list is not re-sortable by individual metrics; rank always means the overall preference-alignment order. Criterion-specific comparisons are available in details. This also gives the export a single unambiguous order.</p></li>
+<li><p><strong>Per-isolate detail.</strong> Accuracy and contiguity use labelled per-isolate dot plots with their cohort mean. Residual adapter/barcode and replicon outcomes use a compact per-isolate event table. Population confidence intervals are not shown because these 13 named reference isolates are the benchmark cohort rather than a random sample from a defined bacterial population.</p></li>
+<li><p><strong>Score language.</strong> The overall number is called a preference-alignment score within the selected benchmark scenario. It receives no labels such as excellent, good, or poor and is never described as a probability, universal tool quality, or externally validated assembly-quality grade.</p></li>
+<li><p><strong>CSV export.</strong> The export contains all 17 combinations in exactly the current display order. Eligible combinations come first with ranks; excluded or insufficient-data combinations follow with blank ranks and reasons. It includes raw summaries, criterion scores, full-precision overall score, displayed score, near-tie status, warnings, selected scenario, preset, four weights, active gates, scoring version, source-data version or content hash, and generation date.</p></li>
+<li><p><strong>Methods &amp; robustness page.</strong> A separate site page documents scope, terminology, equations, policy anchors, survey derivation, presets, gates, warnings, data provenance, limitations, and the repository-only robustness results. The decision page contains only a concise methods summary and link.</p></li>
+<li><p><strong>Evidence provenance and repository independence.</strong> Dashboard evidence is bundled or pinned to a specific source commit or content hash. Repository owner, repository name, raw-data location, and site base URL are build/deployment configuration rather than embedded scoring assumptions. A repository rename must not change scores or require editing the canonical methodology.</p></li>
+<li><p><strong>Scoring version.</strong> The initial accepted rules are version 1.0. A change to a value function, calibration denominator, cohort aggregation, preset, gate, warning threshold, input interpretation, or ranking semantics creates a new scoring version. Styling, explanatory copy, or other cosmetic site changes do not.</p></li>
+<li><p><strong>Paper presentation.</strong> Raw metric-specific figures remain primary empirical evidence and may independently order their x-axes within scenario to aid interpretation. The Community-balanced composite is reported separately for all four supported scenarios as a survey-weighted decision analysis, with the leading combinations and their four criterion scores. The paper does not describe the dashboard’s customizable output as a single universal result.</p></li>
+<li><p><strong>Survey heterogeneity analysis.</strong> The existing 22 respondent weight allocations are each applied descriptively to the canonical cohort criterion scores. The repository reports how often each combination ranks first and how ranks vary across the observed profiles. This requires no new survey and makes no inferential claim about a wider population.</p></li>
+<li><p><strong>Repository-only robustness checks.</strong> Store reproducible outputs for replicon calibration denominators (B=2,3,4), leave-one-isolate-out rankings, the 22 observed respondent profiles, and paper/dashboard numerical parity. These checks need not appear in the paper or supplement. Do not compare against the superseded dynamic min–max/geometric system, and do not vary the accepted 25-point warning threshold.</p></li>
+<li><p><strong>Version-controlled dashboard source.</strong> Maintainable dashboard and Methods &amp; robustness source must live in version control. Compiled site output alone is not an implementation source of truth. The implementation may retain Quarto/Shinylive if it satisfies the canonical scoring and export contracts; the specification does not mandate a framework migration.</p></li>
+<li><p><strong>Accessible presentation.</strong> Criterion information is not conveyed by colour alone. Controls have explicit labels, keyboard operation, meaningful validation messages, and readable values. Plots and tables have text equivalents sufficient to interpret warnings and raw evidence.</p></li>
+</ol>
+</section>
+<section id="testing-decisions" class="level2">
+<h2 class="anchored" data-anchor-id="testing-decisions">Testing Decisions</h2>
+<ol type="1">
+<li><p><strong>Primary test seam.</strong> The highest-value scoring seam is the canonical scorer’s public operation: validated benchmark observations plus scenario and preference configuration in, complete ordered recommendation records out. Tests assert externally observable values, eligibility, warnings, ranks, and provenance without coupling to helper functions or dataframe implementation details.</p></li>
+<li><p><strong>Canonical real-data acceptance test.</strong> The pinned benchmark contains 884 unique observations representing 17 combinations × 13 isolates × two basecalling models × two depths. An end-to-end test validates this contract and produces 17 ordered result records for each supported scenario under Community-balanced preferences.</p></li>
+<li><p><strong>Fixed-score examples.</strong> Through the public scorer boundary, tests cover contiguity ratios at 1.0, 0.9, 1.1, and values whose distance clips to zero; combined accuracy event rates at 0, intermediate values, 10, and above 10; zero versus non-zero residual hits; and replicon totals of 0, 1, 2, 3, and above 3.</p></li>
+<li><p><strong>Order-of-operations tests.</strong> Fixtures distinguish scoring isolates before cohort aggregation from transforming already-averaged raw values, particularly where clipping occurs. Replicon recovery separately verifies its intentional cohort-level absolute count.</p></li>
+<li><p><strong>Replicon parser contract.</strong> Tests cover multiple reference sequences, decimals, exactly 0%, exactly 50%, just below 50%, exactly 95%, and just below 95%; malformed entries; out-of-range coverage; missing fields; and disagreement with full, partial, or total count columns.</p></li>
+<li><p><strong>Preset and weight tests.</strong> Each named preset produces its documented weights and gates. Custom percentages accept zeros and decimals but reject negative values, all-zero values, totals below 100, and totals above 100. Editing a named configuration yields visible Custom state; reset restores Community-balanced.</p></li>
+<li><p><strong>Gate tests.</strong> Complete recovery excludes a combination when any expected replicon is below 95%. The zero-residual-hit gate excludes a combination when any of the 13 isolates has a detected hit. Failed combinations have no rank. An all-failed scenario returns a no-eligible-recommendation state without relaxing requirements.</p></li>
+<li><p><strong>Missing-data tests.</strong> Missing isolates, indicators, malformed numerics, duplicate keys, unsupported scenarios, and unknown combinations produce explicit validation or insufficient-data outcomes according to whether the defect affects the entire input contract or one alternative. No test should observe imputation or silent weight redistribution.</p></li>
+<li><p><strong>Ranking and display tests.</strong> Ranking uses unrounded values, display uses one decimal, exact ties share rank, stable ordering is reproducible, and adjacent differences below one point receive near-tie status. Excluded records follow eligible records and carry blank ranks.</p></li>
+<li><p><strong>Warning tests.</strong> Residual hits and replicon losses always generate concrete event/affected-isolate warnings. Accuracy and contiguity warnings occur at a mean-to-minimum gap of exactly 25 or more and do not occur below 25. A zero-weight criterion still generates its warning.</p></li>
+<li><p><strong>Export acceptance test.</strong> Downloaded records exactly preserve the currently displayed order and contain all required settings, evidence, scores, qualifiers, reasons, and provenance. A repository rename or configured site-base change does not alter scoring data or break the export.</p></li>
+<li><p><strong>Paper parity test.</strong> For Community-balanced settings, every paper composite value and rank matches the canonical scorer for the same pinned data and scenario. Metric-specific plot ordering remains a presentation concern and does not modify criterion scores.</p></li>
+<li><p><strong>Dashboard parity test.</strong> Canonical fixtures are exercised through the interactive application at its highest practical boundary. A browser-level smoke journey selects a scenario and preset, verifies the leading recommendation and raw summaries, changes to a valid custom allocation, activates a gate, opens detail, reveals all alternatives, and downloads the ordered CSV.</p></li>
+<li><p><strong>Methods-page test.</strong> The published page exposes scoring version, source-data provenance, all four value functions, preset definitions, gates, limitations, and links to repository-only robustness outputs. It must not display obsolete min–max or geometric formulations as active alternatives.</p></li>
+<li><p><strong>Robustness checks as executable analyses.</strong> Denominator, leave-one-isolate-out, and respondent-profile analyses are deterministic from pinned inputs and save machine-readable results. They are evidence artifacts rather than tests that fail merely because a winner changes; automated checks instead ensure that the analyses run, cover all expected cases, and report their outputs completely.</p></li>
+<li><p><strong>Testing prior art.</strong> The repository currently validates scientific outputs primarily through Snakemake rules and generated tables and has shell-based determinism checks, but no general Python unit-test suite for scoring. New tests should introduce the smallest conventional Python test harness necessary to exercise the pure canonical boundary; scientific plotting scripts should consume its outputs rather than becoming a second test seam.</p></li>
+</ol>
+</section>
+<section id="out-of-scope" class="level2">
+<h2 class="anchored" data-anchor-id="out-of-scope">Out of Scope</h2>
+<ul>
+<li>Re-running or changing basecalling, read filtering, adapter trimming, assembly, QUAST, residual-hit detection, or reference-coverage generation.</li>
+<li>Requiring Dimas to add a normalized one-row-per-replicon pipeline table; version 1.0 works with and validates the existing results CSV.</li>
+<li>Conducting a new residual adapter/barcode false-positive validation study; the existing project validation is accepted.</li>
+<li>Surveying or re-contacting respondents, increasing the survey sample, or claiming the 22 respondents statistically represent the wider community.</li>
+<li>Comparing the accepted system with the superseded dynamic min–max/geometric system in the paper, supplement, site, or required repository analyses.</li>
+<li>Supporting 50× depth or an aggregate <code>all models</code>/<code>all depths</code> scenario.</li>
+<li>Introducing separate user-controlled mismatch and indel weights.</li>
+<li>Replacing the accepted symmetric auNGA-ratio distance with an asymmetric curve.</li>
+<li>Using TOPSIS, PROMETHEE, VIKOR, geometric aggregation, or another competing ranking method in the primary interface.</li>
+<li>Adding population confidence intervals for the 13 fixed benchmark isolates.</li>
+<li>Generalising the value functions or rankings beyond the current bacterial isolate benchmark without a new scoped scoring version.</li>
+<li>Assigning qualitative quality grades to either criterion or overall scores.</li>
+<li>Allowing the primary recommendation table to be re-sorted by individual metrics.</li>
+<li>Treating 95% reference coverage as proof of circularisation, structural correctness, or a finished assembly.</li>
+<li>Implementing a shareable-settings URL in the initial release; it may be added later without altering the scoring model.</li>
+<li>Renaming the project repository as part of this work.</li>
+</ul>
+</section>
+<section id="further-notes" class="level2">
+<h2 class="anchored" data-anchor-id="further-notes">Further Notes</h2>
+<ul>
+<li>The four explicit handoff assumptions have been resolved as follows: dynamic min–max scaling is replaced by fixed rulers; symmetric auNGA distance is retained deliberately; mismatch and indel indicators are combined without additional sliders while remaining visible; geometric shifts and epsilon floors are removed in favour of arithmetic trade-offs plus gates; and isolate variation is exposed descriptively rather than hidden or assigned population confidence intervals.</li>
+<li>QUAST’s reference-aware contiguity and error indicators are distinct measurements rather than universal quality thresholds. The project calibrations at a combined error-event rate of ten and a replicon-loss total of three must therefore be described as benchmark-policy choices.</li>
+<li>The existing result file contains numeric full, partial, and total missed counts as well as all-reference coverage encoded as semicolon-delimited text. Across the pinned 884 rows it contains 62 full misses and five partial misses, for 67 total severe losses across 51 observations.</li>
+<li>The current published dashboard offers unsupported aggregate scenario choices and 50× depth, performs filter-dependent min–max scaling after averaging raw metrics, provides two geometric formulas, and hard-codes a repository raw-data URL. These behaviours are replaced by this specification.</li>
+<li>The current paper scoring script separately performs sample-level min–max transformations and an epsilon-floor geometric mean. It must delegate to the canonical scorer rather than retain an alternate formula.</li>
+<li>The published site currently contains compiled dashboard HTML, while maintainable dashboard source is not present on the current default branch. Restoring version-controlled source is an implementation prerequisite.</li>
+<li>Primary methodological references include the <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3624806/">QUAST paper</a>, the <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6436528/">MIMAG/MISAG reporting standard</a>, and <a href="https://www.ncbi.nlm.nih.gov/genbank/genomesubmit/">NCBI prokaryotic genome submission guidance</a>. None supplies universal value functions for this benchmark’s four criteria.</li>
+<li>Repository names and owners are mutable. Documentation may identify the source commit used for this specification, but runtime behavior and provenance generation must use configured repository metadata or content hashes rather than assume a permanent <code>owner/repository</code> string.</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

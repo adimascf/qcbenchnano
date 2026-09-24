@@ -1,0 +1,1174 @@
+{
+  "scoring_version": "1.0",
+  "source_data_commit": "4d6b8cb1d482e5066f9ca575ebd3b67af4a32562",
+  "source_data_hash": "ee7a50a277fef6153a1cc05f9cc2afd227e940efbd36a4c2b0abe9a57580901b",
+  "survey_data_hash": "3e7cfddea1d70f28dbf0ec0a605e0a0e4201d8a77c82fc3d93e97e30380c297f",
+  "denominator_sensitivity": [
+    {
+      "scenario_model": "hac",
+      "scenario_depth": "20x",
+      "winner_by_denominator": {
+        "2.0": "seqkit-dorado",
+        "3.0": "seqkit-dorado",
+        "4.0": "seqkit-dorado"
+      },
+      "winner_is_stable": true,
+      "max_rank_shift": 2,
+      "ranks_by_combo": {
+        "seqkit-dorado": {
+          "2.0": 1,
+          "3.0": 1,
+          "4.0": 1
+        },
+        "chopper-dorado": {
+          "2.0": 2,
+          "3.0": 2,
+          "4.0": 2
+        },
+        "unprocessed-porechop_abi": {
+          "2.0": 3,
+          "3.0": 3,
+          "4.0": 3
+        },
+        "unprocessed-dorado": {
+          "2.0": 4,
+          "3.0": 4,
+          "4.0": 4
+        },
+        "seqkit-barbell": {
+          "2.0": 5,
+          "3.0": 5,
+          "4.0": 5
+        },
+        "unprocessed-untrimmed": {
+          "2.0": 6,
+          "3.0": 6,
+          "4.0": 6
+        },
+        "chopper-barbell": {
+          "2.0": 7,
+          "3.0": 7,
+          "4.0": 9
+        },
+        "fastplong-all": {
+          "2.0": 8,
+          "3.0": 8,
+          "4.0": 7
+        },
+        "seqkit-porechop_abi": {
+          "2.0": 9,
+          "3.0": 9,
+          "4.0": 8
+        },
+        "chopper-porechop_abi": {
+          "2.0": 10,
+          "3.0": 10,
+          "4.0": 10
+        },
+        "unprocessed-barbell": {
+          "2.0": 11,
+          "3.0": 11,
+          "4.0": 11
+        },
+        "seqkit-untrimmed": {
+          "2.0": 12,
+          "3.0": 12,
+          "4.0": 12
+        },
+        "chopper-untrimmed": {
+          "2.0": 13,
+          "3.0": 13,
+          "4.0": 13
+        },
+        "filtlong-porechop_abi": {
+          "2.0": 14,
+          "3.0": 14,
+          "4.0": 14
+        },
+        "filtlong-untrimmed": {
+          "2.0": 15,
+          "3.0": 15,
+          "4.0": 15
+        },
+        "filtlong-dorado": {
+          "2.0": 16,
+          "3.0": 16,
+          "4.0": 16
+        },
+        "filtlong-barbell": {
+          "2.0": 17,
+          "3.0": 17,
+          "4.0": 17
+        }
+      }
+    },
+    {
+      "scenario_model": "hac",
+      "scenario_depth": "100x",
+      "winner_by_denominator": {
+        "2.0": "seqkit-barbell",
+        "3.0": "seqkit-barbell",
+        "4.0": "seqkit-barbell"
+      },
+      "winner_is_stable": true,
+      "max_rank_shift": 0,
+      "ranks_by_combo": {
+        "seqkit-barbell": {
+          "2.0": 1,
+          "3.0": 1,
+          "4.0": 1
+        },
+        "seqkit-dorado": {
+          "2.0": 2,
+          "3.0": 2,
+          "4.0": 2
+        },
+        "chopper-barbell": {
+          "2.0": 3,
+          "3.0": 3,
+          "4.0": 3
+        },
+        "chopper-dorado": {
+          "2.0": 4,
+          "3.0": 4,
+          "4.0": 4
+        },
+        "seqkit-porechop_abi": {
+          "2.0": 5,
+          "3.0": 5,
+          "4.0": 5
+        },
+        "unprocessed-barbell": {
+          "2.0": 6,
+          "3.0": 6,
+          "4.0": 6
+        },
+        "unprocessed-dorado": {
+          "2.0": 7,
+          "3.0": 7,
+          "4.0": 7
+        },
+        "unprocessed-untrimmed": {
+          "2.0": 8,
+          "3.0": 8,
+          "4.0": 8
+        },
+        "seqkit-untrimmed": {
+          "2.0": 9,
+          "3.0": 9,
+          "4.0": 9
+        },
+        "chopper-untrimmed": {
+          "2.0": 10,
+          "3.0": 10,
+          "4.0": 10
+        },
+        "fastplong-all": {
+          "2.0": 11,
+          "3.0": 11,
+          "4.0": 11
+        },
+        "chopper-porechop_abi": {
+          "2.0": 12,
+          "3.0": 12,
+          "4.0": 12
+        },
+        "unprocessed-porechop_abi": {
+          "2.0": 13,
+          "3.0": 13,
+          "4.0": 13
+        },
+        "filtlong-dorado": {
+          "2.0": 14,
+          "3.0": 14,
+          "4.0": 14
+        },
+        "filtlong-barbell": {
+          "2.0": 15,
+          "3.0": 15,
+          "4.0": 15
+        },
+        "filtlong-porechop_abi": {
+          "2.0": 16,
+          "3.0": 16,
+          "4.0": 16
+        },
+        "filtlong-untrimmed": {
+          "2.0": 17,
+          "3.0": 17,
+          "4.0": 17
+        }
+      }
+    },
+    {
+      "scenario_model": "sup",
+      "scenario_depth": "20x",
+      "winner_by_denominator": {
+        "2.0": "chopper-porechop_abi",
+        "3.0": "chopper-porechop_abi",
+        "4.0": "chopper-porechop_abi"
+      },
+      "winner_is_stable": true,
+      "max_rank_shift": 0,
+      "ranks_by_combo": {
+        "chopper-porechop_abi": {
+          "2.0": 1,
+          "3.0": 1,
+          "4.0": 1
+        },
+        "chopper-dorado": {
+          "2.0": 2,
+          "3.0": 2,
+          "4.0": 2
+        },
+        "unprocessed-dorado": {
+          "2.0": 3,
+          "3.0": 3,
+          "4.0": 3
+        },
+        "unprocessed-porechop_abi": {
+          "2.0": 4,
+          "3.0": 4,
+          "4.0": 4
+        },
+        "fastplong-all": {
+          "2.0": 5,
+          "3.0": 5,
+          "4.0": 5
+        },
+        "chopper-untrimmed": {
+          "2.0": 6,
+          "3.0": 6,
+          "4.0": 6
+        },
+        "seqkit-barbell": {
+          "2.0": 7,
+          "3.0": 7,
+          "4.0": 7
+        },
+        "seqkit-untrimmed": {
+          "2.0": 8,
+          "3.0": 8,
+          "4.0": 8
+        },
+        "unprocessed-barbell": {
+          "2.0": 9,
+          "3.0": 9,
+          "4.0": 9
+        },
+        "unprocessed-untrimmed": {
+          "2.0": 10,
+          "3.0": 10,
+          "4.0": 10
+        },
+        "seqkit-dorado": {
+          "2.0": 11,
+          "3.0": 11,
+          "4.0": 11
+        },
+        "seqkit-porechop_abi": {
+          "2.0": 12,
+          "3.0": 12,
+          "4.0": 12
+        },
+        "chopper-barbell": {
+          "2.0": 13,
+          "3.0": 13,
+          "4.0": 13
+        },
+        "filtlong-untrimmed": {
+          "2.0": 14,
+          "3.0": 14,
+          "4.0": 14
+        },
+        "filtlong-dorado": {
+          "2.0": 15,
+          "3.0": 15,
+          "4.0": 15
+        },
+        "filtlong-porechop_abi": {
+          "2.0": 16,
+          "3.0": 16,
+          "4.0": 16
+        },
+        "filtlong-barbell": {
+          "2.0": 17,
+          "3.0": 17,
+          "4.0": 17
+        }
+      }
+    },
+    {
+      "scenario_model": "sup",
+      "scenario_depth": "100x",
+      "winner_by_denominator": {
+        "2.0": "chopper-porechop_abi",
+        "3.0": "chopper-porechop_abi",
+        "4.0": "chopper-porechop_abi"
+      },
+      "winner_is_stable": true,
+      "max_rank_shift": 3,
+      "ranks_by_combo": {
+        "chopper-porechop_abi": {
+          "2.0": 1,
+          "3.0": 1,
+          "4.0": 1
+        },
+        "fastplong-all": {
+          "2.0": 2,
+          "3.0": 2,
+          "4.0": 2
+        },
+        "unprocessed-dorado": {
+          "2.0": 3,
+          "3.0": 3,
+          "4.0": 3
+        },
+        "seqkit-porechop_abi": {
+          "2.0": 4,
+          "3.0": 4,
+          "4.0": 4
+        },
+        "chopper-barbell": {
+          "2.0": 5,
+          "3.0": 5,
+          "4.0": 5
+        },
+        "seqkit-untrimmed": {
+          "2.0": 6,
+          "3.0": 6,
+          "4.0": 6
+        },
+        "unprocessed-untrimmed": {
+          "2.0": 7,
+          "3.0": 7,
+          "4.0": 7
+        },
+        "chopper-dorado": {
+          "2.0": 8,
+          "3.0": 8,
+          "4.0": 8
+        },
+        "unprocessed-barbell": {
+          "2.0": 9,
+          "3.0": 9,
+          "4.0": 9
+        },
+        "unprocessed-porechop_abi": {
+          "2.0": 10,
+          "3.0": 10,
+          "4.0": 10
+        },
+        "seqkit-barbell": {
+          "2.0": 11,
+          "3.0": 11,
+          "4.0": 11
+        },
+        "chopper-untrimmed": {
+          "2.0": 12,
+          "3.0": 12,
+          "4.0": 12
+        },
+        "filtlong-dorado": {
+          "2.0": 13,
+          "3.0": 14,
+          "4.0": 14
+        },
+        "filtlong-untrimmed": {
+          "2.0": 14,
+          "3.0": 15,
+          "4.0": 15
+        },
+        "filtlong-porechop_abi": {
+          "2.0": 15,
+          "3.0": 16,
+          "4.0": 16
+        },
+        "seqkit-dorado": {
+          "2.0": 16,
+          "3.0": 13,
+          "4.0": 13
+        },
+        "filtlong-barbell": {
+          "2.0": 17,
+          "3.0": 17,
+          "4.0": 17
+        }
+      }
+    }
+  ],
+  "leave_one_out": [
+    {
+      "scenario_model": "hac",
+      "scenario_depth": "20x",
+      "baseline_winner": "seqkit-dorado",
+      "winner_by_omitted_isolate": {
+        "AJ292__202310": "seqkit-dorado",
+        "AMtb_1__202402": "seqkit-dorado",
+        "ATCC_10708__202309": "seqkit-dorado",
+        "ATCC_17802__202309": "seqkit-dorado",
+        "ATCC_19119__202309": "seqkit-dorado",
+        "ATCC_25922__202309": "seqkit-dorado",
+        "ATCC_33560__202309": "seqkit-dorado",
+        "ATCC_35221__202309": "seqkit-dorado",
+        "ATCC_35897__202309": "seqkit-dorado",
+        "ATCC_BAA-679__202309": "seqkit-dorado",
+        "BPH2947__202310": "seqkit-dorado",
+        "MMC234__202311": "seqkit-dorado",
+        "RDH275__202311": "seqkit-dorado"
+      },
+      "winner_is_stable": true,
+      "winner_stability_frequency": 1.0,
+      "max_rank_shift": 11,
+      "combo_rank_ranges": {
+        "seqkit-dorado": [
+          1,
+          1
+        ],
+        "chopper-dorado": [
+          2,
+          3
+        ],
+        "unprocessed-porechop_abi": [
+          3,
+          5
+        ],
+        "unprocessed-dorado": [
+          4,
+          6
+        ],
+        "seqkit-barbell": [
+          5,
+          7
+        ],
+        "unprocessed-untrimmed": [
+          5,
+          9
+        ],
+        "chopper-barbell": [
+          7,
+          10
+        ],
+        "fastplong-all": [
+          2,
+          10
+        ],
+        "seqkit-porechop_abi": [
+          2,
+          13
+        ],
+        "chopper-porechop_abi": [
+          4,
+          11
+        ],
+        "unprocessed-barbell": [
+          8,
+          12
+        ],
+        "seqkit-untrimmed": [
+          8,
+          16
+        ],
+        "chopper-untrimmed": [
+          12,
+          13
+        ],
+        "filtlong-porechop_abi": [
+          11,
+          16
+        ],
+        "filtlong-untrimmed": [
+          14,
+          15
+        ],
+        "filtlong-dorado": [
+          15,
+          16
+        ],
+        "filtlong-barbell": [
+          17,
+          17
+        ]
+      }
+    },
+    {
+      "scenario_model": "hac",
+      "scenario_depth": "100x",
+      "baseline_winner": "seqkit-barbell",
+      "winner_by_omitted_isolate": {
+        "AJ292__202310": "seqkit-barbell",
+        "AMtb_1__202402": "seqkit-barbell",
+        "ATCC_10708__202309": "seqkit-barbell",
+        "ATCC_17802__202309": "seqkit-barbell",
+        "ATCC_19119__202309": "seqkit-barbell",
+        "ATCC_25922__202309": "seqkit-barbell",
+        "ATCC_33560__202309": "seqkit-barbell",
+        "ATCC_35221__202309": "seqkit-dorado",
+        "ATCC_35897__202309": "seqkit-barbell",
+        "ATCC_BAA-679__202309": "chopper-barbell",
+        "BPH2947__202310": "unprocessed-porechop_abi",
+        "MMC234__202311": "seqkit-barbell",
+        "RDH275__202311": "seqkit-barbell"
+      },
+      "winner_is_stable": false,
+      "winner_stability_frequency": 0.7692307692307693,
+      "max_rank_shift": 16,
+      "combo_rank_ranges": {
+        "seqkit-barbell": [
+          1,
+          3
+        ],
+        "seqkit-dorado": [
+          1,
+          2
+        ],
+        "chopper-barbell": [
+          1,
+          4
+        ],
+        "chopper-dorado": [
+          3,
+          5
+        ],
+        "seqkit-porechop_abi": [
+          4,
+          6
+        ],
+        "unprocessed-barbell": [
+          6,
+          8
+        ],
+        "unprocessed-dorado": [
+          6,
+          9
+        ],
+        "unprocessed-untrimmed": [
+          8,
+          10
+        ],
+        "seqkit-untrimmed": [
+          9,
+          11
+        ],
+        "chopper-untrimmed": [
+          10,
+          12
+        ],
+        "fastplong-all": [
+          5,
+          13
+        ],
+        "chopper-porechop_abi": [
+          7,
+          12
+        ],
+        "unprocessed-porechop_abi": [
+          1,
+          17
+        ],
+        "filtlong-dorado": [
+          13,
+          15
+        ],
+        "filtlong-barbell": [
+          14,
+          16
+        ],
+        "filtlong-porechop_abi": [
+          14,
+          17
+        ],
+        "filtlong-untrimmed": [
+          15,
+          17
+        ]
+      }
+    },
+    {
+      "scenario_model": "sup",
+      "scenario_depth": "20x",
+      "baseline_winner": "chopper-porechop_abi",
+      "winner_by_omitted_isolate": {
+        "AJ292__202310": "chopper-porechop_abi",
+        "AMtb_1__202402": "chopper-porechop_abi",
+        "ATCC_10708__202309": "chopper-porechop_abi",
+        "ATCC_17802__202309": "chopper-porechop_abi",
+        "ATCC_19119__202309": "chopper-porechop_abi",
+        "ATCC_25922__202309": "chopper-porechop_abi",
+        "ATCC_33560__202309": "chopper-porechop_abi",
+        "ATCC_35221__202309": "chopper-porechop_abi",
+        "ATCC_35897__202309": "chopper-porechop_abi",
+        "ATCC_BAA-679__202309": "chopper-porechop_abi",
+        "BPH2947__202310": "chopper-porechop_abi",
+        "MMC234__202311": "chopper-porechop_abi",
+        "RDH275__202311": "chopper-porechop_abi"
+      },
+      "winner_is_stable": true,
+      "winner_stability_frequency": 1.0,
+      "max_rank_shift": 7,
+      "combo_rank_ranges": {
+        "chopper-porechop_abi": [
+          1,
+          1
+        ],
+        "chopper-dorado": [
+          2,
+          2
+        ],
+        "unprocessed-dorado": [
+          3,
+          3
+        ],
+        "unprocessed-porechop_abi": [
+          4,
+          4
+        ],
+        "fastplong-all": [
+          5,
+          6
+        ],
+        "chopper-untrimmed": [
+          6,
+          8
+        ],
+        "seqkit-barbell": [
+          6,
+          9
+        ],
+        "seqkit-untrimmed": [
+          7,
+          10
+        ],
+        "unprocessed-barbell": [
+          8,
+          12
+        ],
+        "unprocessed-untrimmed": [
+          9,
+          13
+        ],
+        "seqkit-dorado": [
+          5,
+          12
+        ],
+        "seqkit-porechop_abi": [
+          7,
+          12
+        ],
+        "chopper-barbell": [
+          11,
+          13
+        ],
+        "filtlong-untrimmed": [
+          14,
+          15
+        ],
+        "filtlong-dorado": [
+          14,
+          15
+        ],
+        "filtlong-porechop_abi": [
+          16,
+          16
+        ],
+        "filtlong-barbell": [
+          17,
+          17
+        ]
+      }
+    },
+    {
+      "scenario_model": "sup",
+      "scenario_depth": "100x",
+      "baseline_winner": "chopper-porechop_abi",
+      "winner_by_omitted_isolate": {
+        "AJ292__202310": "chopper-porechop_abi",
+        "AMtb_1__202402": "chopper-porechop_abi",
+        "ATCC_10708__202309": "chopper-porechop_abi",
+        "ATCC_17802__202309": "chopper-porechop_abi",
+        "ATCC_19119__202309": "chopper-porechop_abi",
+        "ATCC_25922__202309": "chopper-porechop_abi",
+        "ATCC_33560__202309": "chopper-porechop_abi",
+        "ATCC_35221__202309": "chopper-porechop_abi",
+        "ATCC_35897__202309": "chopper-porechop_abi",
+        "ATCC_BAA-679__202309": "chopper-porechop_abi",
+        "BPH2947__202310": "chopper-porechop_abi",
+        "MMC234__202311": "chopper-porechop_abi",
+        "RDH275__202311": "chopper-porechop_abi"
+      },
+      "winner_is_stable": true,
+      "winner_stability_frequency": 1.0,
+      "max_rank_shift": 12,
+      "combo_rank_ranges": {
+        "chopper-porechop_abi": [
+          1,
+          1
+        ],
+        "fastplong-all": [
+          2,
+          4
+        ],
+        "unprocessed-dorado": [
+          3,
+          4
+        ],
+        "seqkit-porechop_abi": [
+          2,
+          6
+        ],
+        "chopper-barbell": [
+          5,
+          7
+        ],
+        "seqkit-untrimmed": [
+          6,
+          9
+        ],
+        "unprocessed-untrimmed": [
+          6,
+          10
+        ],
+        "chopper-dorado": [
+          2,
+          13
+        ],
+        "unprocessed-barbell": [
+          6,
+          12
+        ],
+        "unprocessed-porechop_abi": [
+          3,
+          15
+        ],
+        "seqkit-barbell": [
+          8,
+          12
+        ],
+        "chopper-untrimmed": [
+          9,
+          17
+        ],
+        "seqkit-dorado": [
+          10,
+          14
+        ],
+        "filtlong-dorado": [
+          11,
+          15
+        ],
+        "filtlong-untrimmed": [
+          13,
+          16
+        ],
+        "filtlong-porechop_abi": [
+          12,
+          16
+        ],
+        "filtlong-barbell": [
+          16,
+          17
+        ]
+      }
+    }
+  ],
+  "respondent_profiles": [
+    {
+      "scenario_model": "hac",
+      "scenario_depth": "20x",
+      "total_respondents": 22,
+      "winner_counts": {
+        "seqkit-dorado": 22
+      },
+      "winner_frequencies": {
+        "seqkit-dorado": 1.0
+      },
+      "combo_rank_variation": {
+        "seqkit-dorado": {
+          "min_rank": 1.0,
+          "max_rank": 1.0,
+          "mean_rank": 1.0
+        },
+        "chopper-dorado": {
+          "min_rank": 2.0,
+          "max_rank": 3.0,
+          "mean_rank": 2.0454545454545454
+        },
+        "unprocessed-porechop_abi": {
+          "min_rank": 2.0,
+          "max_rank": 3.0,
+          "mean_rank": 2.9545454545454546
+        },
+        "unprocessed-untrimmed": {
+          "min_rank": 4.0,
+          "max_rank": 12.0,
+          "mean_rank": 6.2272727272727275
+        },
+        "unprocessed-dorado": {
+          "min_rank": 4.0,
+          "max_rank": 5.0,
+          "mean_rank": 4.136363636363637
+        },
+        "fastplong-all": {
+          "min_rank": 5.0,
+          "max_rank": 8.0,
+          "mean_rank": 7.090909090909091
+        },
+        "seqkit-porechop_abi": {
+          "min_rank": 6.0,
+          "max_rank": 9.0,
+          "mean_rank": 8.090909090909092
+        },
+        "seqkit-untrimmed": {
+          "min_rank": 8.0,
+          "max_rank": 14.0,
+          "mean_rank": 11.181818181818182
+        },
+        "chopper-porechop_abi": {
+          "min_rank": 8.0,
+          "max_rank": 12.0,
+          "mean_rank": 9.909090909090908
+        },
+        "seqkit-barbell": {
+          "min_rank": 5.0,
+          "max_rank": 10.0,
+          "mean_rank": 6.090909090909091
+        },
+        "chopper-untrimmed": {
+          "min_rank": 10.0,
+          "max_rank": 16.0,
+          "mean_rank": 12.772727272727273
+        },
+        "chopper-barbell": {
+          "min_rank": 6.0,
+          "max_rank": 13.0,
+          "mean_rank": 8.136363636363637
+        },
+        "unprocessed-barbell": {
+          "min_rank": 10.0,
+          "max_rank": 13.0,
+          "mean_rank": 11.681818181818182
+        },
+        "filtlong-porechop_abi": {
+          "min_rank": 11.0,
+          "max_rank": 14.0,
+          "mean_rank": 13.818181818181818
+        },
+        "filtlong-untrimmed": {
+          "min_rank": 15.0,
+          "max_rank": 17.0,
+          "mean_rank": 15.272727272727273
+        },
+        "filtlong-dorado": {
+          "min_rank": 13.0,
+          "max_rank": 16.0,
+          "mean_rank": 15.636363636363637
+        },
+        "filtlong-barbell": {
+          "min_rank": 16.0,
+          "max_rank": 17.0,
+          "mean_rank": 16.954545454545453
+        }
+      }
+    },
+    {
+      "scenario_model": "hac",
+      "scenario_depth": "100x",
+      "total_respondents": 22,
+      "winner_counts": {
+        "seqkit-barbell": 21,
+        "unprocessed-barbell": 1
+      },
+      "winner_frequencies": {
+        "seqkit-barbell": 0.9545454545454546,
+        "unprocessed-barbell": 0.045454545454545456
+      },
+      "combo_rank_variation": {
+        "seqkit-barbell": {
+          "min_rank": 1.0,
+          "max_rank": 3.0,
+          "mean_rank": 1.0909090909090908
+        },
+        "seqkit-dorado": {
+          "min_rank": 2.0,
+          "max_rank": 5.0,
+          "mean_rank": 2.1363636363636362
+        },
+        "chopper-barbell": {
+          "min_rank": 3.0,
+          "max_rank": 4.0,
+          "mean_rank": 3.0454545454545454
+        },
+        "chopper-dorado": {
+          "min_rank": 4.0,
+          "max_rank": 6.0,
+          "mean_rank": 4.090909090909091
+        },
+        "seqkit-porechop_abi": {
+          "min_rank": 2.0,
+          "max_rank": 5.0,
+          "mean_rank": 4.863636363636363
+        },
+        "unprocessed-dorado": {
+          "min_rank": 6.0,
+          "max_rank": 7.0,
+          "mean_rank": 6.909090909090909
+        },
+        "unprocessed-barbell": {
+          "min_rank": 1.0,
+          "max_rank": 7.0,
+          "mean_rank": 5.863636363636363
+        },
+        "unprocessed-untrimmed": {
+          "min_rank": 8.0,
+          "max_rank": 11.0,
+          "mean_rank": 8.136363636363637
+        },
+        "seqkit-untrimmed": {
+          "min_rank": 9.0,
+          "max_rank": 12.0,
+          "mean_rank": 9.136363636363637
+        },
+        "chopper-untrimmed": {
+          "min_rank": 10.0,
+          "max_rank": 13.0,
+          "mean_rank": 10.363636363636363
+        },
+        "fastplong-all": {
+          "min_rank": 8.0,
+          "max_rank": 11.0,
+          "mean_rank": 10.772727272727273
+        },
+        "chopper-porechop_abi": {
+          "min_rank": 9.0,
+          "max_rank": 13.0,
+          "mean_rank": 11.818181818181818
+        },
+        "unprocessed-porechop_abi": {
+          "min_rank": 10.0,
+          "max_rank": 13.0,
+          "mean_rank": 12.772727272727273
+        },
+        "filtlong-dorado": {
+          "min_rank": 14.0,
+          "max_rank": 16.0,
+          "mean_rank": 14.090909090909092
+        },
+        "filtlong-barbell": {
+          "min_rank": 14.0,
+          "max_rank": 15.0,
+          "mean_rank": 14.954545454545455
+        },
+        "filtlong-porechop_abi": {
+          "min_rank": 16.0,
+          "max_rank": 17.0,
+          "mean_rank": 16.045454545454547
+        },
+        "filtlong-untrimmed": {
+          "min_rank": 15.0,
+          "max_rank": 17.0,
+          "mean_rank": 16.90909090909091
+        }
+      }
+    },
+    {
+      "scenario_model": "sup",
+      "scenario_depth": "20x",
+      "total_respondents": 22,
+      "winner_counts": {
+        "chopper-porechop_abi": 21,
+        "unprocessed-porechop_abi": 1
+      },
+      "winner_frequencies": {
+        "chopper-porechop_abi": 0.9545454545454546,
+        "unprocessed-porechop_abi": 0.045454545454545456
+      },
+      "combo_rank_variation": {
+        "chopper-porechop_abi": {
+          "min_rank": 1.0,
+          "max_rank": 3.0,
+          "mean_rank": 1.0909090909090908
+        },
+        "chopper-dorado": {
+          "min_rank": 2.0,
+          "max_rank": 4.0,
+          "mean_rank": 2.090909090909091
+        },
+        "unprocessed-dorado": {
+          "min_rank": 2.0,
+          "max_rank": 3.0,
+          "mean_rank": 2.9545454545454546
+        },
+        "unprocessed-porechop_abi": {
+          "min_rank": 1.0,
+          "max_rank": 4.0,
+          "mean_rank": 3.8636363636363638
+        },
+        "seqkit-untrimmed": {
+          "min_rank": 5.0,
+          "max_rank": 12.0,
+          "mean_rank": 7.545454545454546
+        },
+        "chopper-untrimmed": {
+          "min_rank": 5.0,
+          "max_rank": 9.0,
+          "mean_rank": 6.545454545454546
+        },
+        "fastplong-all": {
+          "min_rank": 5.0,
+          "max_rank": 7.0,
+          "mean_rank": 5.318181818181818
+        },
+        "unprocessed-untrimmed": {
+          "min_rank": 8.0,
+          "max_rank": 16.0,
+          "mean_rank": 10.136363636363637
+        },
+        "seqkit-dorado": {
+          "min_rank": 6.0,
+          "max_rank": 11.0,
+          "mean_rank": 10.272727272727273
+        },
+        "unprocessed-barbell": {
+          "min_rank": 6.0,
+          "max_rank": 12.0,
+          "mean_rank": 8.863636363636363
+        },
+        "seqkit-porechop_abi": {
+          "min_rank": 8.0,
+          "max_rank": 12.0,
+          "mean_rank": 11.454545454545455
+        },
+        "seqkit-barbell": {
+          "min_rank": 6.0,
+          "max_rank": 12.0,
+          "mean_rank": 8.090909090909092
+        },
+        "chopper-barbell": {
+          "min_rank": 11.0,
+          "max_rank": 13.0,
+          "mean_rank": 12.909090909090908
+        },
+        "filtlong-untrimmed": {
+          "min_rank": 14.0,
+          "max_rank": 15.0,
+          "mean_rank": 14.454545454545455
+        },
+        "filtlong-dorado": {
+          "min_rank": 13.0,
+          "max_rank": 16.0,
+          "mean_rank": 14.5
+        },
+        "filtlong-porechop_abi": {
+          "min_rank": 15.0,
+          "max_rank": 16.0,
+          "mean_rank": 15.909090909090908
+        },
+        "filtlong-barbell": {
+          "min_rank": 17.0,
+          "max_rank": 17.0,
+          "mean_rank": 17.0
+        }
+      }
+    },
+    {
+      "scenario_model": "sup",
+      "scenario_depth": "100x",
+      "total_respondents": 22,
+      "winner_counts": {
+        "chopper-porechop_abi": 21,
+        "seqkit-porechop_abi": 1
+      },
+      "winner_frequencies": {
+        "chopper-porechop_abi": 0.9545454545454546,
+        "seqkit-porechop_abi": 0.045454545454545456
+      },
+      "combo_rank_variation": {
+        "chopper-porechop_abi": {
+          "min_rank": 1.0,
+          "max_rank": 3.0,
+          "mean_rank": 1.0909090909090908
+        },
+        "fastplong-all": {
+          "min_rank": 2.0,
+          "max_rank": 2.0,
+          "mean_rank": 2.0
+        },
+        "unprocessed-dorado": {
+          "min_rank": 3.0,
+          "max_rank": 4.0,
+          "mean_rank": 3.0454545454545454
+        },
+        "seqkit-porechop_abi": {
+          "min_rank": 1.0,
+          "max_rank": 4.0,
+          "mean_rank": 3.8636363636363638
+        },
+        "chopper-barbell": {
+          "min_rank": 5.0,
+          "max_rank": 5.0,
+          "mean_rank": 5.0
+        },
+        "seqkit-untrimmed": {
+          "min_rank": 6.0,
+          "max_rank": 9.0,
+          "mean_rank": 6.181818181818182
+        },
+        "unprocessed-untrimmed": {
+          "min_rank": 6.0,
+          "max_rank": 10.0,
+          "mean_rank": 7.090909090909091
+        },
+        "chopper-dorado": {
+          "min_rank": 6.0,
+          "max_rank": 8.0,
+          "mean_rank": 7.909090909090909
+        },
+        "unprocessed-barbell": {
+          "min_rank": 7.0,
+          "max_rank": 9.0,
+          "mean_rank": 8.909090909090908
+        },
+        "unprocessed-porechop_abi": {
+          "min_rank": 8.0,
+          "max_rank": 10.0,
+          "mean_rank": 9.909090909090908
+        },
+        "chopper-untrimmed": {
+          "min_rank": 11.0,
+          "max_rank": 13.0,
+          "mean_rank": 11.772727272727273
+        },
+        "seqkit-barbell": {
+          "min_rank": 11.0,
+          "max_rank": 12.0,
+          "mean_rank": 11.272727272727273
+        },
+        "seqkit-dorado": {
+          "min_rank": 12.0,
+          "max_rank": 13.0,
+          "mean_rank": 12.954545454545455
+        },
+        "filtlong-dorado": {
+          "min_rank": 14.0,
+          "max_rank": 17.0,
+          "mean_rank": 14.409090909090908
+        },
+        "filtlong-untrimmed": {
+          "min_rank": 14.0,
+          "max_rank": 15.0,
+          "mean_rank": 14.818181818181818
+        },
+        "filtlong-porechop_abi": {
+          "min_rank": 15.0,
+          "max_rank": 16.0,
+          "mean_rank": 15.818181818181818
+        },
+        "filtlong-barbell": {
+          "min_rank": 16.0,
+          "max_rank": 17.0,
+          "mean_rank": 16.954545454545453
+        }
+      }
+    }
+  ]
+}
