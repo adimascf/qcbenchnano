@@ -4,7 +4,7 @@ import itertools
 
 WORKFLOW = Path("workflow").resolve()
 CONFIG = Path("config").resolve()
-RESULTS = Path("/scratch/project/bug_seq_scratch/qc_bench/results").resolve()
+RESULTS = Path(config.get("results_dir", "/scratch/project/bug_seq_scratch/qc_bench/results_explore_quality")).resolve()
 DATA = Path("/scratch/user/s4897040/biox7021/data").resolve()
 FIGURES = RESULTS / "figures"
 TABLES = RESULTS / "tables"
@@ -23,21 +23,26 @@ DEPTHS = config["depth"]
 MODELS = config["model"]
 REPEAT = config["repeat"]
 
-EVAL_TRIMMERS = config["trimming"] + ["untrimmed"]
-EVAL_TOOLS = config["quality"] + ["unprocessed"]
+# Quality filtering exploration tools (100 bp cutoffs, 1000 bp excluded)
+QUALITY_TOOLS = [
+	"chopper_extract100",
+	"chopper_trim100",
+	"fastplong_100",
+	"filtlong_default",
+	"filtlong_len",
+	"filtlong_meanq",
+	"seqkit_100",
+	"unprocessed"
+]
+
+# All settings applied to Dorado-trimmed reads
+TRIMMERS = ["dorado"]
+EVAL_TRIMMERS = TRIMMERS
+EVAL_TOOLS = QUALITY_TOOLS
+
+COMBINATIONS = [f"{tool}-dorado" for tool in QUALITY_TOOLS]
 
 KITS = pep.sample_table["sequencing_kits"]
-
-
-COMBINATIONS = []
-for tool in EVAL_TOOLS:
-	if tool == "fastplong":
-		tool = tool + "-" + "all"
-		COMBINATIONS.append(tool)
-	else:
-		for trimmer in EVAL_TRIMMERS:
-			combo = tool + "-" + trimmer
-			COMBINATIONS.append(combo)
 
 pr_files = expand(
     RESULTS / "assess/call/{combo}/{depth}x/{model}/{sample}.precision-recall.tsv",
@@ -53,7 +58,8 @@ target_files = expand(
     [
         RESULTS / "assess/call/{combo}/{depth}x/{model}/{sample}.precision-recall-summary.tsv",
         RESULTS / "assess/assembly/quast/{combo}/{depth}x/{model}/{sample}.{combo}.report.tsv",
-        RESULTS / "assess/assembly/contaminant/{combo}/{depth}x/{model}/{sample}.{combo}.contaminants.tsv"
+        RESULTS / "assess/assembly/contaminant/{combo}/{depth}x/{model}/{sample}.{combo}.contaminants.tsv",
+        RESULTS / "assess/assembly/missed_contigs/{combo}/{depth}x/{model}/{sample}.{combo}.{depth}x.missed_contigs.csv"
     ],
     combo=COMBINATIONS, depth=DEPTHS, sample=SAMPLES, model=MODELS
 )
@@ -61,94 +67,36 @@ target_files = expand(
 rule all:
 	input:
 		target_files,
-		
-		FIGURES / "assess/assembly/metrics/combo_main_figure_assembly_sup.png",
-		FIGURES / "assess/assembly/metrics/combo_main_figure_assembly_hac.png",
-		FIGURES / "assess/call/metrics/combo_main_figure_call_sup.png",
-		FIGURES / "assess/call/metrics/combo_main_figure_call_hac.png",
-		FIGURES / "assess/call/metrics/combo_supp_figure_call_sup.png",
-		FIGURES / "assess/call/metrics/combo_supp_figure_call_hac.png",
-
-		FIGURES / "assess/call/metrics/combo_variant_f1_mean_pointplot.png",
-		FIGURES / "assess/call/metrics/combo_variant_precision_mean_pointplot.png",
-		FIGURES / "assess/call/metrics/combo_variant_recall_mean_pointplot.png",
-		FIGURES / "assess/call/metrics/combo_variant_f1_median_pointplot.png",
-		FIGURES / "assess/call/metrics/combo_variant_precision_median_pointplot.png",
-		FIGURES / "assess/call/metrics/combo_variant_recall_median_pointplot.png",
-
-		FIGURES / "assess/call/metrics/combo_variant_f1_mean_overlayplot.png",
-		FIGURES / "assess/call/metrics/combo_variant_precision_mean_overlayplot.png",
-		FIGURES / "assess/call/metrics/combo_variant_recall_mean_overlayplot.png",
-		FIGURES / "assess/call/metrics/combo_variant_f1_median_overlayplot.png",
-		FIGURES / "assess/call/metrics/combo_variant_precision_median_overlayplot.png",
-		FIGURES / "assess/call/metrics/combo_variant_recall_median_overlayplot.png",
-		
+		FIGURES / "param_explore_quality_sup.png",
+		FIGURES / "param_explore_quality_hac.png",
 		TABLES / "assess/call/metrics/combo_variant_summary.csv",
-		TABLES / "assess/call/metrics/combo_variant_summary_averages.csv",
-		TABLES / "assess/call/metrics/combo_variant_fnfp.csv",
-		TABLES / "assess/call/metrics/combo_variant_sample_fnfp.csv",
-		FIGURES / "assess/call/metrics/combo_variant_fp.png",
-		FIGURES / "assess/call/metrics/combo_variant_fn.png",
-
-		TABLES / "assess/assembly/metrics/combo_contaminant_summary_count.csv",
-		TABLES / "assess/assembly/metrics/combo_contaminant_details.csv",
-		FIGURES / "assess/assembly/metrics/combo_contaminant_count.png",
 		TABLES / "assess/assembly/metrics/combo_quast_compiled_metrics.csv",
-		FIGURES / "assess/assembly/metrics/combo_assembly_errors_per_100kbp_barplot.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_errors_per_100kbp_overlay.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_errors_per_100kbp_pointplot.png",
-
-		FIGURES / "assess/assembly/metrics/combo_assembly_nga50_normalised_linear_pointplot_mean.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_nga50_normalised_linear_pointplot_median.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_nga50_normalised_linear_overlay_mean.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_nga50_normalised_linear_overlay_median.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_nga50_normalised_logit_overlay_mean.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_nga50_normalised_logit_overlay_median.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_nga50_normalised_logit_pointplot_mean.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_nga50_normalised_logit_pointplot_median.png",
-
-		FIGURES / "assess/assembly/metrics/combo_assembly_aunga_normalised_linear_pointplot_mean.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_aunga_normalised_linear_pointplot_median.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_aunga_normalised_linear_overlay_mean.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_aunga_normalised_linear_overlay_median.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_aunga_normalised_logit_overlay_mean.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_aunga_normalised_logit_overlay_median.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_aunga_normalised_logit_pointplot_mean.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_aunga_normalised_logit_pointplot_median.png",
-
-		FIGURES / "assess/assembly/metrics/combo_assembly_missed_contigs.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_total_missed_contigs.png",
 		TABLES / "assess/assembly/metrics/combo_assembly_missed_contigs.csv",
+		TABLES / "assess/assembly/metrics/combo_contaminant_summary_count.csv"
 
-		TABLES / "assess/assembly/metrics/combo_assembly_metrics_master.csv",
-		TABLES / "assess/assembly/metrics/combo_assembly_summary_metrics_sup.csv",
-		TABLES / "assess/assembly/metrics/combo_assembly_summary_metrics_hac.csv",
-		FIGURES / "assess/assembly/metrics/combo_assembly_aggregate_score_perdepth_sup.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_aggregate_score_perdepth_hac.png",
-		TABLES / "assess/assembly/metrics/combo_assembly_survey_scores_perdepth.csv",
-		TABLES / "assess/assembly/metrics/combo_assembly_survey_ranking_summary_perdepth.csv",
-		TABLES / "assess/assembly/metrics/combo_assembly_survey_ranking_summary.csv",
-		FIGURES / "assess/assembly/metrics/combo_assembly_aggregate_score_sup.png",
-		FIGURES / "assess/assembly/metrics/combo_assembly_aggregate_score_hac.png",
-
-		TABLES / "assess/call/metrics/combo_f1_score_significance.csv",
-		TABLES / "assess/call/metrics/combo_prec_significance.csv",
-		TABLES / "assess/call/metrics/combo_recall_significance.csv",
-        
-		TABLES / "assess/assembly/metrics/combo_nga50_norm_significance.csv",
-		TABLES / "assess/assembly/metrics/combo_mismatches_per_100kbp_significance.csv",
-		TABLES / "assess/assembly/metrics/combo_indels_per_100kbp_significance.csv",
-
-		FIGURES / "assess/benchmark_resources/benchmark_resources.png",
-		TABLES / "assess/benchmark_resources/benchmark_resources.csv"
+rule plot_param_explore_quality:
+	input:
+		variant_csv=TABLES / "assess/call/metrics/combo_variant_summary.csv",
+		quast_csv=TABLES / "assess/assembly/metrics/combo_quast_compiled_metrics.csv",
+		missed_csv=TABLES / "assess/assembly/metrics/combo_assembly_missed_contigs.csv",
+		contam_csv=TABLES / "assess/assembly/metrics/combo_contaminant_summary_count.csv"
+	log:
+		LOGS / "param_explore/param_explore_quality_{model}.log"
+	resources:
+		mem="16GiB",
+		runtime="20m"
+	conda:
+		ENVS / "generate_figure_python.yaml"
+	output:
+		figure=FIGURES / "param_explore_quality_{model}.png"
+	script:
+		"../scripts/plot_param_explore_quality.py"
 
 include: RULES / "common.smk"
 include: RULES / "trim.smk"
-#include: RULES / "check.smk"
 include: RULES / "quality.smk"
 include: RULES / "downsample.smk"
 include: RULES / "call.smk"
 include: RULES / "assembly.smk"
 include: RULES / "assess.smk"
 include: RULES / "main_figure.smk"
-
