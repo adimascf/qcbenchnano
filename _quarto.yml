@@ -1,5 +1,10 @@
 project:
   type: website
+  render:
+    - "*.qmd"
+    - "*.md"
+    - "!AGENTS.md"
+    - "!docs/agents/"
   title: "QC Benchmark for Nanopore Reads"
   subtitle: "Evaluating read trimming and filtering across downstream pipelines"
 
