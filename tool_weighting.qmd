@@ -1,0 +1,1336 @@
+---
+title: "QC Tool Recommendation Dashboard"
+format:
+  html:
+    embed-resources: false
+    page-layout: full
+filters:
+  - shinylive
+---
+
+::: {.callout-note appearance="simple" icon=false}
+**Scoring Specification:** 1.0 &nbsp;|&nbsp;
+**Benchmark Scope:** 13 reference bacterial isolates &times; 17 combinations &times; HAC/SUP &times; 20&times;/100&times; (884 observations) &nbsp;|&nbsp;
+**Provenance:** [adimascf/biox7021](https://github.com/adimascf/biox7021) @ [`4d6b8cb`](https://github.com/adimascf/biox7021/commit/4d6b8cb1d482e5066f9ca575ebd3b67af4a32562) &nbsp;|&nbsp;
+[Methods &amp; Robustness Documentation &rarr;](methods_and_robustness.html)
+:::
+
+```{shinylive-python}
+#| standalone: true
+#| viewerHeight: 1100
+
+from shiny import App, render, ui, reactive
+import pandas as pd
+import numpy as np
+import re
+import io
+import hashlib
+from datetime import datetime, timezone
+
+def _load_app_config():
+    try:
+        from qc_scoring.config import load_dashboard_config
+        return load_dashboard_config()
+    except Exception:
+        from dataclasses import dataclass
+
+        @dataclass(frozen=True)
+        class DashboardConfig:
+            repository_owner: str = "adimascf"
+            repository_name: str = "biox7021"
+            site_base_url: str = "https://adimascf.github.io/biox7021/"
+            default_branch: str = "main"
+            source_data_path: str = "logbook/assembly_metrics.csv"
+            pinned_commit: str = "4d6b8cb1d482e5066f9ca575ebd3b67af4a32562"
+            bundled_data_path: str = "assets/data/assembly_metrics.csv"
+            scoring_version: str = "1.0"
+
+            def provenance_text(self) -> str:
+                commit_short = self.pinned_commit[:7] if self.pinned_commit else "unknown"
+                return f"Source: {self.repository_owner}/{self.repository_name} @ {commit_short}"
+
+            def data_url(self) -> str:
+                return f"https://raw.githubusercontent.com/{self.repository_owner}/{self.repository_name}/{self.pinned_commit}/{self.source_data_path}"
+
+        try:
+            import yaml
+            for p in ["config/dashboard_config.yaml", "../config/dashboard_config.yaml"]:
+                try:
+                    with open(p, "r", encoding="utf-8") as f:
+                        data = yaml.safe_load(f) or {}
+                        repo = data.get("repository", {})
+                        evidence = data.get("evidence", {})
+                        scoring = data.get("scoring", {})
+                        return DashboardConfig(
+                            repository_owner=str(repo.get("owner", "adimascf")),
+                            repository_name=str(repo.get("name", "biox7021")),
+                            site_base_url=str(repo.get("base_url", "https://adimascf.github.io/biox7021/")),
+                            default_branch=str(repo.get("default_branch", "main")),
+                            source_data_path=str(evidence.get("source_data_path", "logbook/assembly_metrics.csv")),
+                            pinned_commit=str(evidence.get("pinned_commit", "4d6b8cb1d482e5066f9ca575ebd3b67af4a32562")),
+                            bundled_data_path=str(evidence.get("bundled_data_path", "assets/data/assembly_metrics.csv")),
+                            scoring_version=str(scoring.get("version", "1.0")),
+                        )
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+        return DashboardConfig()
+
+app_config = _load_app_config()
+
+app_ui = ui.page_fluid(
+    ui.tags.style("""
+        .region-container {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+            background-color: #ffffff;
+        }
+        .region-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 12px;
+            color: #1e293b;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 8px;
+        }
+        .provenance-box {
+            font-size: 0.85rem;
+            color: #64748b;
+            background-color: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 10px 14px;
+            margin-top: 15px;
+        }
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+        .ranking-table th {
+            background-color: #f8fafc;
+            color: #334155;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 2px solid #cbd5e1;
+        }
+        .ranking-table td {
+            vertical-align: middle;
+            font-size: 0.9rem;
+        }
+        .near-tie-badge {
+            font-size: 0.72rem;
+            background-color: #475569;
+            color: #ffffff;
+            padding: 2px 7px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+        .dot-plot-container {
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 12px 14px;
+            margin-bottom: 14px;
+        }
+        .text-interpretation-box {
+            font-size: 0.85rem;
+            color: #334155;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-top: 8px;
+            margin-bottom: 16px;
+        }
+    """),
+
+    # Region 1: Scenario Selection
+    ui.tags.section(
+        {"id": "region-scenario", "role": "region", "aria-labelledby": "heading-scenario", "class": "region-container"},
+        ui.tags.h2({"id": "heading-scenario", "class": "region-header"}, "1. Scenario Selection"),
+        ui.tags.p("Select the basecalling model and sequencing depth matching your experiment. Selections begin unset."),
+        ui.layout_columns(
+            ui.input_select(
+                "model_select",
+                "Basecalling Model",
+                {"": "-- Select Basecalling Model --", "hac": "HAC (High Accuracy)", "sup": "SUP (Super Accurate)"},
+                selected="",
+            ),
+            ui.input_select(
+                "depth_select",
+                "Sequencing Depth",
+                {"": "-- Select Sequencing Depth --", "20x": "20× Depth", "100x": "100× Depth"},
+                selected="",
+            ),
+            col_widths=(6, 6)
+        ),
+        ui.output_ui("scenario_validation_msg")
+    ),
+
+    # Region 2: Priorities and Weights
+    ui.tags.section(
+        {"id": "region-priorities", "role": "region", "aria-labelledby": "heading-priorities", "class": "region-container"},
+        ui.tags.h2({"id": "heading-priorities", "class": "region-header"}, "2. Priorities & Eligibility Requirements"),
+        ui.tags.p("Choose a published starting preset or define custom percentage priorities totaling 100%."),
+        ui.layout_columns(
+            ui.tags.div(
+                ui.input_select(
+                    "preset_select",
+                    "Preference Preset",
+                    {
+                        "community_balanced": "Community-balanced (28% Acc, 20% Contig, 17% Res, 35% Repl)",
+                        "complete_replicon_recovery": "Complete-replicon-recovery (Gate: all replicons ≥95%)",
+                        "sequence_accurate_assembly": "Sequence-accurate-assembly (50% Acc, 14% Contig, 12% Res, 24% Repl)",
+                        "custom": "Custom Priorities"
+                    },
+                    selected="community_balanced"
+                ),
+                ui.input_action_button(
+                    "btn_reset",
+                    "Reset to Community-balanced",
+                    class_="btn btn-sm btn-outline-secondary",
+                    style="margin-top: 4px;"
+                )
+            ),
+            ui.output_ui("preset_description"),
+            col_widths=(6, 6)
+        ),
+        ui.tags.div(
+            {"role": "group", "aria-labelledby": "weights-label"},
+            ui.tags.span({"id": "weights-label", "class": "sr-only"}, "Criterion percentage weights"),
+            ui.layout_columns(
+                ui.input_numeric("w_acc", "Sequence Accuracy (%)", value=28, min=0, max=100, step=0.1),
+                ui.input_numeric("w_cont", "Reference Contiguity (%)", value=20, min=0, max=100, step=0.1),
+                ui.input_numeric("w_res", "Residual Adapter Removal (%)", value=17, min=0, max=100, step=0.1),
+                ui.input_numeric("w_rep", "Replicon Recovery (%)", value=35, min=0, max=100, step=0.1),
+                col_widths=(3, 3, 3, 3)
+            ),
+            ui.output_ui("weight_total_indicator")
+        ),
+        ui.tags.hr(),
+        ui.tags.div(
+            {"role": "group", "aria-labelledby": "gates-label"},
+            ui.tags.h3({"id": "gates-label", "style": "font-size: 1rem; font-weight: 600;"}, "Non-compensatory Eligibility Gates"),
+            ui.input_checkbox("gate_complete", "Require Complete Replicon Recovery (all replicons ≥95% coverage)", value=False),
+            ui.input_checkbox("gate_zero_hits", "Require Zero Detected Residual Adapter/Barcode Hits", value=False)
+        )
+    ),
+
+    # Region 3: Recommendation Shortlist
+    ui.tags.section(
+        {"id": "region-shortlist", "role": "region", "aria-labelledby": "heading-shortlist", "class": "region-container"},
+        ui.tags.h2({"id": "heading-shortlist", "class": "region-header"}, "3. Recommendation Shortlist"),
+        ui.tags.p(
+            "Ranked eligible QC–trimming combinations ordered by full-precision preference-alignment score (fixed ranking order; not re-sortable by individual metrics). "
+            "Adjacent eligible results differing by less than one full-precision point are labelled 'similar overall scores' (descriptive communication qualifier; not statistically equivalent)."
+        ),
+        ui.output_ui("shortlist_content")
+    ),
+
+    # Region 4: Selected Detail
+    ui.tags.section(
+        {"id": "region-detail", "role": "region", "aria-labelledby": "heading-detail", "class": "region-container"},
+        ui.tags.h2({"id": "heading-detail", "class": "region-header"}, "4. Selected Combination Evidence & Diagnostics"),
+        ui.tags.p("Detailed per-isolate performance, warnings, dot plots, and error-event breakdown for the selected tool combination:"),
+        ui.tags.div(
+            ui.input_select(
+                "selected_combo",
+                "Select Combination to Inspect Evidence & Diagnostics:",
+                {"": "-- Select Scenario First --"},
+                selected="",
+            ),
+            style="max-width: 520px; margin-bottom: 16px;"
+        ),
+        ui.output_ui("selected_combo_detail")
+    ),
+
+    # Region 5: Concise Methodology
+    ui.tags.section(
+        {"id": "region-methodology", "role": "region", "aria-labelledby": "heading-methodology", "class": "region-container"},
+        ui.tags.h2({"id": "heading-methodology", "class": "region-header"}, "5. Concise Methodology & Provenance"),
+        ui.tags.p(
+            "Scoring Specification 1.0 evaluates four fixed 0–100 criterion scales without dynamic min–max rescaling: "
+            "(1) Reference-aware contiguity via symmetric distance from auNGA ratio 1.0; "
+            "(2) Sequence accuracy via combined mismatch-plus-indel event rate (0 at ≥10 events/100kbp); "
+            "(3) Residual adapter/barcode removal via cohort clean-isolate percentage; "
+            "(4) Reference-replicon recovery via cohort absolute count of replicons <50% coverage with fixed denominator 3."
+        ),
+        ui.tags.p(
+            ui.tags.a(
+                "Full Methods & Robustness Documentation →",
+                href="methods_and_robustness.html",
+                target="_blank"
+            ),
+            " | ",
+            ui.tags.a(
+                "Specification #10 →",
+                href="https://github.com/adimascf/biox7021/issues/10",
+                target="_blank"
+            ),
+            " | ",
+            ui.tags.a(
+                "Technical Specification Document →",
+                href="docs/qc-trimming-recommendation-system-specification.md",
+                target="_blank"
+            )
+        ),
+        ui.tags.div(
+            {"class": "provenance-box"},
+            ui.tags.strong("Scoring Version: "), f"{app_config.scoring_version} | ",
+            ui.tags.strong("Source Repository: "), f"{app_config.repository_owner}/{app_config.repository_name} | ",
+            ui.tags.strong("Pinned Commit: "), f"{app_config.pinned_commit} | ",
+            ui.tags.strong("Benchmark Scope & Limitations: "),
+            "Evaluated on 13 reference bacterial isolates across 17 QC–trimming combinations (884 observations). "
+            "Scores represent preference-alignment trade-offs on this benchmark cohort and are not universal assembly quality indicators. "
+            "No qualitative evaluation labels, rating tiers, or subjective categories are assigned."
+        )
+    )
+)
+
+_REPLICON_COV_RE = re.compile(r"([\d.]+)\s*%\s*cov")
+
+EXPECTED_BENCHMARK_COMBINATIONS = {
+    "chopper-barbell", "chopper-dorado", "chopper-porechop_abi", "chopper-untrimmed",
+    "fastplong-all", "filtlong-barbell", "filtlong-dorado", "filtlong-porechop_abi",
+    "filtlong-untrimmed", "seqkit-barbell", "seqkit-dorado", "seqkit-porechop_abi",
+    "seqkit-untrimmed", "unprocessed-barbell", "unprocessed-dorado",
+    "unprocessed-porechop_abi", "unprocessed-untrimmed",
+}
+
+EXPECTED_BENCHMARK_SAMPLES = {
+    "AJ292__202310", "AMtb_1__202402", "ATCC_10708__202309", "ATCC_17802__202309",
+    "ATCC_19119__202309", "ATCC_25922__202309", "ATCC_33560__202309", "ATCC_35221__202309",
+    "ATCC_35897__202309", "ATCC_BAA-679__202309", "BPH2947__202310", "MMC234__202311", "RDH275__202311"
+}
+
+def render_dot_plot_svg(title: str, plot_id: str, isolate_scores: dict, cohort_mean: float) -> str:
+    samples = sorted(isolate_scores.keys())
+    n = len(samples)
+    row_height = 24
+    top_margin = 46
+    bottom_margin = 40
+    left_margin = 175
+    plot_width = 450
+    total_width = left_margin + plot_width + 65
+    total_height = top_margin + (n * row_height) + bottom_margin
+
+    def val_to_x(val: float) -> float:
+        clipped = max(0.0, min(100.0, float(val)))
+        return left_margin + (clipped / 100.0) * plot_width
+
+    grid_lines = []
+    tick_labels = []
+    for tick in [0, 20, 40, 60, 80, 100]:
+        x = val_to_x(tick)
+        grid_lines.append(f'<line x1="{x:.1f}" y1="{top_margin}" x2="{x:.1f}" y2="{top_margin + n * row_height}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2,2"/>')
+        tick_labels.append(f'<text x="{x:.1f}" y="{top_margin + n * row_height + 18}" text-anchor="middle" font-size="11" fill="#64748b" font-family="sans-serif">{tick}</text>')
+
+    mean_x = val_to_x(cohort_mean)
+    mean_line = (
+        f'<line x1="{mean_x:.1f}" y1="{top_margin - 8}" x2="{mean_x:.1f}" y2="{top_margin + n * row_height + 8}" '
+        f'stroke="#0284c7" stroke-width="2.5" stroke-dasharray="4,3"/>\n'
+        f'<rect x="{mean_x - 52:.1f}" y="{top_margin - 25}" width="104" height="18" rx="3" fill="#0284c7"/>\n'
+        f'<text x="{mean_x:.1f}" y="{top_margin - 12}" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#ffffff" font-family="sans-serif">Cohort Mean: {cohort_mean:.1f}</text>'
+    )
+
+    rows = []
+    for idx, sample in enumerate(samples):
+        y = top_margin + idx * row_height + (row_height / 2)
+        score = float(isolate_scores.get(sample, 0.0))
+        dot_x = val_to_x(score)
+        rows.append(f'<line x1="{left_margin}" y1="{y:.1f}" x2="{left_margin + plot_width}" y2="{y:.1f}" stroke="#f8fafc" stroke-width="1"/>')
+        rows.append(f'<text x="{left_margin - 10}" y="{y + 4:.1f}" text-anchor="end" font-size="11" fill="#334155" font-family="monospace">{sample}</text>')
+        # Dual visual encoding: filled circle + white ring (colour is not the only carrier)
+        rows.append(
+            f'<circle cx="{dot_x:.1f}" cy="{y:.1f}" r="6" fill="#0f766e" stroke="#134e4a" stroke-width="1.5"/>\n'
+            f'<circle cx="{dot_x:.1f}" cy="{y:.1f}" r="2" fill="#ffffff"/>'
+        )
+        text_x = dot_x + 10 if dot_x < (left_margin + plot_width - 32) else dot_x - 10
+        text_anchor = "start" if dot_x < (left_margin + plot_width - 32) else "end"
+        rows.append(f'<text x="{text_x:.1f}" y="{y + 3.5:.1f}" text-anchor="{text_anchor}" font-size="10" font-weight="600" fill="#0f766e" font-family="sans-serif">{score:.1f}</text>')
+
+    return f"""
+    <svg id="{plot_id}" width="100%" height="{total_height}" viewBox="0 0 {total_width} {total_height}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{title} per-isolate dot plot">
+        <title>{title} Dot Plot</title>
+        <desc>{title} scores for 13 reference bacterial isolates with cohort mean at {cohort_mean:.1f}. No population confidence intervals are displayed as this is the complete benchmark cohort.</desc>
+        <text x="{left_margin}" y="18" font-size="13" font-weight="bold" fill="#1e293b" font-family="sans-serif">{title}</text>
+        <text x="{left_margin}" y="32" font-size="10" fill="#64748b" font-family="sans-serif">Fixed 0–100 criterion scale | Reference cohort (no population confidence intervals)</text>
+        {''.join(grid_lines)}
+        {''.join(tick_labels)}
+        {''.join(rows)}
+        {mean_line}
+    </svg>
+    """
+
+def calculate_scenario_rankings(
+    df: pd.DataFrame,
+    model: str,
+    depth: str,
+    weight_accuracy: float,
+    weight_contiguity: float,
+    weight_residual: float,
+    weight_replicon: float,
+    gate_complete: bool = False,
+    gate_zero_hits: bool = False,
+):
+    subset = df[(df["model"] == model) & (df["depth"] == depth)]
+    w_acc = float(weight_accuracy) / 100.0
+    w_cont = float(weight_contiguity) / 100.0
+    w_res = float(weight_residual) / 100.0
+    w_rep = float(weight_replicon) / 100.0
+
+    eligible_records = []
+    excluded_records = []
+    insufficient_records = []
+
+    combos_present = set(subset["combo"].unique()) if not subset.empty else set()
+    all_combos = sorted(EXPECTED_BENCHMARK_COMBINATIONS.union(combos_present))
+
+    for combo in all_combos:
+        combo_name = str(combo)
+        isolate_metrics = subset[subset["combo"] == combo]
+        samples_present = set(isolate_metrics["sample"].unique())
+        missing_samples = EXPECTED_BENCHMARK_SAMPLES - samples_present
+        if missing_samples:
+            insufficient_records.append({
+                "combo": combo_name,
+                "overall_score": 0.0,
+                "display_score": None,
+                "rank": None,
+                "is_eligible": False,
+                "is_insufficient_data": True,
+                "ineligible_reason": (
+                    f"insufficient benchmark data: missing {len(missing_samples)} isolate(s): "
+                    f"{sorted(missing_samples)}"
+                ),
+                "reasons": [
+                    f"insufficient benchmark data: missing {len(missing_samples)} isolate(s): "
+                    f"{sorted(missing_samples)}"
+                ],
+                "warnings": ["Insufficient benchmark data"],
+                "raw_group": isolate_metrics,
+            })
+            continue
+
+        iso_cont = np.maximum(0.0, 1.0 - np.abs(isolate_metrics["auNGA_ratio"] - 1.0)) * 100.0
+        iso_acc = np.clip(1.0 - (isolate_metrics["Mismatches per 100kbp"] + isolate_metrics["Indels per 100kbp"]) / 10.0, 0.0, 1.0) * 100.0
+
+        mean_cont = float(np.mean(iso_cont))
+        mean_acc = float(np.mean(iso_acc))
+        clean_pct = float(np.mean(isolate_metrics["contamination_count"] == 0) * 100.0)
+        total_residual_hits = int(isolate_metrics["contamination_count"].sum())
+        clean_isolates = int((isolate_metrics["contamination_count"] == 0).sum())
+        affected_residual_isolates = int((isolate_metrics["contamination_count"] > 0).sum())
+        total_missed_replicons = int(isolate_metrics["total_missed"].sum())
+        full_missed = int(isolate_metrics["full_missed"].sum())
+        partial_missed = int(isolate_metrics["partial_missed"].sum())
+        affected_replicon_isolates = int((isolate_metrics["total_missed"] > 0).sum())
+        score_rep = float(max(0.0, 1.0 - total_missed_replicons / 3.0) * 100.0)
+
+        mean_error_rate = float(np.mean(isolate_metrics["Mismatches per 100kbp"] + isolate_metrics["Indels per 100kbp"]))
+        mean_mismatches = float(np.mean(isolate_metrics["Mismatches per 100kbp"]))
+        mean_indels = float(np.mean(isolate_metrics["Indels per 100kbp"]))
+        mean_aunga = float(np.mean(isolate_metrics["auNGA_ratio"]))
+
+        # Supporting diagnostics
+        dup_series = isolate_metrics["Duplication_ratio"] if "Duplication_ratio" in isolate_metrics.columns else pd.Series([1.0] * len(isolate_metrics))
+        mean_duplication = float(np.mean(dup_series))
+        mis_series = isolate_metrics["misassemblies"] if "misassemblies" in isolate_metrics.columns else pd.Series([0] * len(isolate_metrics))
+        total_misassemblies = int(np.sum(mis_series))
+
+        overall_score = (w_acc * mean_acc + w_cont * mean_cont + w_res * clean_pct + w_rep * score_rep)
+
+        # Check replicon completeness (>=95% coverage on all expected replicons, rejecting empty strings)
+        all_replicons_complete = True
+        for cov_str in isolate_metrics["all_contigs_coverage"]:
+            text = str(cov_str).strip()
+            if not text:
+                all_replicons_complete = False
+                break
+            matches = _REPLICON_COV_RE.findall(text)
+            if not matches or any(float(m) < 95.0 for m in matches):
+                all_replicons_complete = False
+                break
+
+        is_eligible = True
+        reasons = []
+
+        if gate_complete and not all_replicons_complete:
+            is_eligible = False
+            reasons.append("fails complete-recovery gate (<95% coverage on at least one replicon)")
+
+        if gate_zero_hits and total_residual_hits > 0:
+            is_eligible = False
+            reasons.append(f"fails zero-residual-hits gate ({total_residual_hits} residual hit(s) detected)")
+
+        # Concrete warnings
+        warnings = []
+        if total_residual_hits > 0:
+            warnings.append(f"{total_residual_hits} residual adapter/barcode hit(s) across {affected_residual_isolates} isolate(s)")
+        if total_missed_replicons > 0:
+            warnings.append(f"{total_missed_replicons} missed or severely incomplete replicon(s) across {affected_replicon_isolates} isolate(s) ({full_missed} full, {partial_missed} partial)")
+
+        min_acc_val = float(np.min(iso_acc))
+        if (mean_acc - min_acc_val) >= 25.0:
+            warnings.append(f"Variable sequence accuracy across isolates: lowest isolate score is {min_acc_val:.1f} (cohort mean {mean_acc:.1f})")
+
+        min_cont_val = float(np.min(iso_cont))
+        if (mean_cont - min_cont_val) >= 25.0:
+            warnings.append(f"Variable contiguity across isolates: lowest isolate score is {min_cont_val:.1f} (cohort mean {mean_cont:.1f})")
+
+        sample_names = list(isolate_metrics["sample"])
+        iso_acc_dict = {str(s): float(v) for s, v in zip(sample_names, iso_acc)}
+        iso_cont_dict = {str(s): float(v) for s, v in zip(sample_names, iso_cont)}
+
+        item = {
+            "combo": combo_name,
+            "overall_score": overall_score,
+            "display_score": round(overall_score, 1),
+            "rank": None,
+            "is_eligible": is_eligible,
+            "is_insufficient_data": False,
+            "contiguity": round(mean_cont, 1),
+            "accuracy": round(mean_acc, 1),
+            "residual": round(clean_pct, 1),
+            "replicon": round(score_rep, 1),
+            "score_contiguity": mean_cont,
+            "score_accuracy": mean_acc,
+            "score_residual": clean_pct,
+            "score_replicon": score_rep,
+            "mean_error_rate": mean_error_rate,
+            "mean_mismatches": mean_mismatches,
+            "mean_indels": mean_indels,
+            "mean_aunga": mean_aunga,
+            "mean_duplication_ratio": mean_duplication,
+            "total_misassemblies": total_misassemblies,
+            "isolate_acc_scores": iso_acc_dict,
+            "isolate_cont_scores": iso_cont_dict,
+            "t_hits": total_residual_hits,
+            "clean_isolates": clean_isolates,
+            "affected_residual_isolates": affected_residual_isolates,
+            "t_miss": total_missed_replicons,
+            "full_missed": full_missed,
+            "partial_missed": partial_missed,
+            "affected_replicon_isolates": affected_replicon_isolates,
+            "reasons": reasons,
+            "ineligible_reason": "; ".join(reasons) if reasons else None,
+            "warnings": warnings,
+            "is_near_tie": False,
+            "raw_group": isolate_metrics,
+        }
+
+        if is_eligible:
+            eligible_records.append(item)
+        else:
+            excluded_records.append(item)
+
+    # Sort eligible by full precision overall_score descending, then combo
+    eligible_records.sort(key=lambda r: (-r["overall_score"], r["combo"]))
+
+    # Competition ranking
+    for idx, rec in enumerate(eligible_records):
+        if idx == 0:
+            rec["rank"] = 1
+        else:
+            prev = eligible_records[idx - 1]
+            if abs(rec["overall_score"] - prev["overall_score"]) < 1e-9:
+                rec["rank"] = prev["rank"]
+            else:
+                rec["rank"] = idx + 1
+
+    # Near tie calculation
+    for idx in range(len(eligible_records) - 1):
+        if abs(eligible_records[idx]["overall_score"] - eligible_records[idx + 1]["overall_score"]) < 1.0:
+            eligible_records[idx]["is_near_tie"] = True
+            eligible_records[idx + 1]["is_near_tie"] = True
+
+    excluded_records.sort(key=lambda r: (-r["overall_score"], r["combo"]))
+    insufficient_records.sort(key=lambda r: r["combo"])
+
+    return eligible_records, excluded_records, insufficient_records
+
+def generate_dashboard_csv_export(
+    df: pd.DataFrame,
+    model: str,
+    depth: str,
+    preset: str,
+    weight_accuracy: float,
+    weight_contiguity: float,
+    weight_residual: float,
+    weight_replicon: float,
+    gate_complete: bool = False,
+    gate_zero_hits: bool = False,
+    config=None,
+) -> str:
+    if not model or not depth:
+        raise ValueError("Cannot generate CSV export: Scenario must be selected (basecalling model and depth).")
+
+    w_acc = float(weight_accuracy)
+    w_cont = float(weight_contiguity)
+    w_res = float(weight_residual)
+    w_rep = float(weight_replicon)
+    if w_acc < 0 or w_cont < 0 or w_res < 0 or w_rep < 0:
+        raise ValueError("Cannot generate CSV export: Weights must be non-negative.")
+    total = w_acc + w_cont + w_res + w_rep
+    if abs(total - 100.0) > 1e-4 or total == 0:
+        raise ValueError("Cannot generate CSV export: Weights must total exactly 100%.")
+
+    eligible, excluded, insufficient = calculate_scenario_rankings(
+        df=df,
+        model=model,
+        depth=depth,
+        weight_accuracy=w_acc,
+        weight_contiguity=w_cont,
+        weight_residual=w_res,
+        weight_replicon=w_rep,
+        gate_complete=gate_complete,
+        gate_zero_hits=gate_zero_hits,
+    )
+
+    csv_bytes = df.to_csv(index=False).encode("utf-8")
+    content_hash = hashlib.sha256(csv_bytes).hexdigest()
+    now_iso = datetime.now(timezone.utc).isoformat()
+
+    scoring_version = getattr(config, "scoring_version", "1.0") if config else "1.0"
+    source_commit = getattr(config, "pinned_commit", "4d6b8cb1d482e5066f9ca575ebd3b67af4a32562") if config else "4d6b8cb1d482e5066f9ca575ebd3b67af4a32562"
+
+    def _build_row(r, rank_val, is_elig, is_insuff, inelig_reason, is_nt, nt_label, disp_score):
+        return {
+            "rank": rank_val,
+            "combo": r["combo"],
+            "overall_score": r["overall_score"] if not is_insuff else 0.0,
+            "display_score": disp_score,
+            "is_eligible": is_elig,
+            "is_insufficient_data": is_insuff,
+            "ineligible_reason": inelig_reason,
+            "is_near_tie": is_nt,
+            "near_tie_label": nt_label,
+            "score_contiguity": r["score_contiguity"] if not is_insuff else 0.0,
+            "score_accuracy": r["score_accuracy"] if not is_insuff else 0.0,
+            "score_residual": r["score_residual"] if not is_insuff else 0.0,
+            "score_replicon": r["score_replicon"] if not is_insuff else 0.0,
+            "mean_auNGA_ratio": r["mean_aunga"] if not is_insuff else 0.0,
+            "mean_error_rate": r["mean_error_rate"] if not is_insuff else 0.0,
+            "mean_mismatches": r["mean_mismatches"] if not is_insuff else 0.0,
+            "mean_indels": r["mean_indels"] if not is_insuff else 0.0,
+            "residual_total_hits": r["t_hits"] if not is_insuff else 0,
+            "residual_clean_isolates": r["clean_isolates"] if not is_insuff else 0,
+            "residual_affected_isolates": r["affected_residual_isolates"] if not is_insuff else 0,
+            "replicon_total_missed": r["t_miss"] if not is_insuff else 0,
+            "replicon_full_missed": r["full_missed"] if not is_insuff else 0,
+            "replicon_partial_missed": r["partial_missed"] if not is_insuff else 0,
+            "replicon_affected_isolates": r["affected_replicon_isolates"] if not is_insuff else 0,
+            "mean_duplication_ratio": r["mean_duplication_ratio"] if not is_insuff else 0.0,
+            "total_misassemblies": r["total_misassemblies"] if not is_insuff else 0,
+            "warnings": "; ".join(r["warnings"]),
+            "preset": preset,
+            "scenario_model": model,
+            "scenario_depth": depth,
+            "weight_accuracy": w_acc,
+            "weight_contiguity": w_cont,
+            "weight_residual": w_res,
+            "weight_replicon": w_rep,
+            "gate_complete_recovery": bool(gate_complete),
+            "gate_zero_residual_hits": bool(gate_zero_hits),
+            "scoring_version": scoring_version,
+            "source_data_commit": source_commit,
+            "source_data_hash": content_hash,
+            "generated_at": now_iso,
+        }
+
+    rows = []
+    # 1. Eligible combinations in displayed ranking order
+    for r in eligible:
+        rows.append(_build_row(
+            r,
+            rank_val=r["rank"] if r["rank"] is not None else "",
+            is_elig=True,
+            is_insuff=False,
+            inelig_reason="",
+            is_nt=r["is_near_tie"],
+            nt_label="similar overall scores" if r["is_near_tie"] else "",
+            disp_score=r["display_score"] if r["display_score"] is not None else "",
+        ))
+
+    # 2. Excluded combinations in displayed order
+    for r in excluded:
+        rows.append(_build_row(
+            r,
+            rank_val="",
+            is_elig=False,
+            is_insuff=False,
+            inelig_reason="; ".join(r["reasons"]),
+            is_nt=r["is_near_tie"],
+            nt_label="similar overall scores" if r["is_near_tie"] else "",
+            disp_score=r["display_score"] if r["display_score"] is not None else "",
+        ))
+
+    # 3. Insufficient data combinations in displayed order
+    for r in insufficient:
+        rows.append(_build_row(
+            r,
+            rank_val="",
+            is_elig=False,
+            is_insuff=True,
+            inelig_reason="; ".join(r["reasons"]),
+            is_nt=False,
+            nt_label="",
+            disp_score="",
+        ))
+
+    export_df = pd.DataFrame(rows)
+    buf = io.StringIO()
+    export_df.to_csv(buf, index=False)
+    return buf.getvalue()
+
+def server(input, output, session):
+
+    show_all = reactive.Value(False)
+    target_preset = reactive.Value(None)
+
+    PRESET_DEFINITIONS = {
+        "community_balanced": (28.0, 20.0, 17.0, 35.0, False, False),
+        "complete_replicon_recovery": (43.0, 31.0, 26.0, 0.0, True, False),
+        "sequence_accurate_assembly": (50.0, 14.0, 12.0, 24.0, False, False),
+    }
+
+    @reactive.Effect
+    @reactive.event(input.btn_reveal_all)
+    def _toggle_show_all():
+        show_all.set(not show_all.get())
+
+    @reactive.Effect
+    def _update_selected_combo_choices():
+        eligible, _, _ = evaluated_results()
+        if not eligible:
+            ui.update_select("selected_combo", choices={"": "-- No Eligible Combinations --"}, selected="")
+            return
+        choices = {}
+        for r in eligible:
+            choices[r["combo"]] = f"Rank {r['rank']}: {r['combo']} (Score: {r['display_score']})"
+        curr = input.selected_combo()
+        new_sel = curr if (curr and curr in choices) else eligible[0]["combo"]
+        ui.update_select("selected_combo", choices=choices, selected=new_sel)
+
+    @reactive.Effect
+    @reactive.event(input.preset_select)
+    def _apply_preset():
+        p = input.preset_select()
+        if p in PRESET_DEFINITIONS:
+            w_acc, w_cont, w_res, w_rep, g_comp, g_zero = PRESET_DEFINITIONS[p]
+            target_preset.set(p)
+            ui.update_numeric("w_acc", value=w_acc)
+            ui.update_numeric("w_cont", value=w_cont)
+            ui.update_numeric("w_res", value=w_res)
+            ui.update_numeric("w_rep", value=w_rep)
+            ui.update_checkbox("gate_complete", value=g_comp)
+            ui.update_checkbox("gate_zero_hits", value=g_zero)
+
+    @reactive.Effect
+    @reactive.event(input.btn_reset)
+    def _reset_to_community():
+        w_acc, w_cont, w_res, w_rep, g_comp, g_zero = PRESET_DEFINITIONS["community_balanced"]
+        target_preset.set("community_balanced")
+        ui.update_select("preset_select", selected="community_balanced")
+        ui.update_numeric("w_acc", value=w_acc)
+        ui.update_numeric("w_cont", value=w_cont)
+        ui.update_numeric("w_res", value=w_res)
+        ui.update_numeric("w_rep", value=w_rep)
+        ui.update_checkbox("gate_complete", value=g_comp)
+        ui.update_checkbox("gate_zero_hits", value=g_zero)
+
+    def _matches_config(current, expected):
+        return (
+            abs(current[0] - expected[0]) < 1e-4
+            and abs(current[1] - expected[1]) < 1e-4
+            and abs(current[2] - expected[2]) < 1e-4
+            and abs(current[3] - expected[3]) < 1e-4
+            and current[4] == expected[4]
+            and current[5] == expected[5]
+        )
+
+    @reactive.Effect
+    def _detect_manual_edits():
+        preset_name = input.preset_select()
+        if preset_name not in PRESET_DEFINITIONS:
+            return
+        weight_accuracy = input.w_acc()
+        weight_contiguity = input.w_cont()
+        weight_residual = input.w_res()
+        weight_replicon = input.w_rep()
+        gate_complete_checked = input.gate_complete()
+        gate_zero_hits_checked = input.gate_zero_hits()
+        if None in (
+            weight_accuracy,
+            weight_contiguity,
+            weight_residual,
+            weight_replicon,
+            gate_complete_checked,
+            gate_zero_hits_checked,
+        ):
+            return
+        current_config = (
+            float(weight_accuracy),
+            float(weight_contiguity),
+            float(weight_residual),
+            float(weight_replicon),
+            bool(gate_complete_checked),
+            bool(gate_zero_hits_checked),
+        )
+        in_flight_preset = target_preset.get()
+        if in_flight_preset is not None:
+            if in_flight_preset != preset_name:
+                target_preset.set(None)
+                return
+            expected_config = PRESET_DEFINITIONS[in_flight_preset]
+            if _matches_config(current_config, expected_config):
+                target_preset.set(None)
+            return
+
+        active_preset_config = PRESET_DEFINITIONS[preset_name]
+        if not _matches_config(current_config, active_preset_config):
+            ui.update_select("preset_select", selected="custom")
+
+    @reactive.Calc
+    def load_metrics_data():
+        try:
+            from pyodide.http import open_url
+            try:
+                return pd.read_csv(open_url("assets/data/assembly_metrics.csv"))
+            except Exception:
+                pass
+            try:
+                return pd.read_csv(open_url("logbook/assembly_metrics.csv"))
+            except Exception:
+                pass
+            pinned_url = app_config.data_url()
+            return pd.read_csv(open_url(pinned_url))
+        except ImportError:
+            for path in [
+                "assets/data/assembly_metrics.csv",
+                "logbook/assembly_metrics.csv",
+                "assembly_metrics.csv"
+            ]:
+                try:
+                    return pd.read_csv(path)
+                except Exception:
+                    continue
+            raise FileNotFoundError("Could not find assembly_metrics.csv in local paths")
+
+    @reactive.Calc
+    def weights_valid():
+        w1 = input.w_acc()
+        w2 = input.w_cont()
+        w3 = input.w_res()
+        w4 = input.w_rep()
+        if None in (w1, w2, w3, w4):
+            return False
+        if w1 < 0 or w2 < 0 or w3 < 0 or w4 < 0:
+            return False
+        total = w1 + w2 + w3 + w4
+        return abs(total - 100.0) < 1e-4 and total > 0 and (w1 > 0 or w2 > 0 or w3 > 0 or w4 > 0)
+
+    @output
+    @render.ui
+    def scenario_validation_msg():
+        m = input.model_select()
+        d = input.depth_select()
+        if not m or not d:
+            return ui.HTML("<div class='alert alert-info' role='alert'><strong>Notice:</strong> Please select both a basecalling model and sequencing depth to view recommendations. (Selections begin unset.)</div>")
+        return ui.HTML(f"<div class='alert alert-success' role='status'>Active Scenario: <strong>{m.upper()}</strong> basecalling at <strong>{d}</strong> depth.</div>")
+
+    @output
+    @render.ui
+    def preset_description():
+        p = input.preset_select()
+        descriptions = {
+            "community_balanced": "Community-balanced: 28% sequence accuracy, 20% reference contiguity, 17% residual removal, 35% replicon recovery.",
+            "complete_replicon_recovery": "Complete-replicon-recovery: Enforces ≥95% coverage on all reference replicons; ranks eligible tools with 43% accuracy, 31% contiguity, 26% residual removal.",
+            "sequence_accurate_assembly": "Sequence-accurate-assembly: Prioritizes base-level sequence fidelity with 50% accuracy weight.",
+            "custom": "Custom Priorities: Specify your own percentage weights totaling 100% and toggle non-compensatory gates."
+        }
+        desc = descriptions.get(p, "")
+        return ui.tags.div({"class": "alert alert-secondary", "style": "margin-bottom: 0; padding: 8px 12px; font-size: 0.9rem;"}, desc)
+
+    @output
+    @render.ui
+    def weight_total_indicator():
+        w1 = input.w_acc()
+        w2 = input.w_cont()
+        w3 = input.w_res()
+        w4 = input.w_rep()
+        if None in (w1, w2, w3, w4):
+            return ui.HTML("<div style='color: #dc2626; font-size: 0.9rem; margin-top: 4px;'>⚠ Please enter valid numeric weights — <em>Ranking paused</em></div>")
+        if w1 < 0 or w2 < 0 or w3 < 0 or w4 < 0:
+            return ui.HTML("<div style='color: #dc2626; font-size: 0.9rem; margin-top: 4px;'>⚠ Weights must be non-negative — <em>Ranking paused</em></div>")
+        total = w1 + w2 + w3 + w4
+        if total == 0:
+            return ui.HTML("<div style='color: #dc2626; font-size: 0.9rem; margin-top: 4px;'>⚠ At least one criterion weight must be greater than zero — <em>Ranking paused</em></div>")
+        diff = total - 100.0
+
+        def _fmt(val):
+            return f"{int(round(val))}%" if abs(val - round(val)) < 1e-4 else f"{val:.1f}%"
+
+        if abs(diff) < 1e-4:
+            return ui.HTML("<div style='color: #16a34a; font-size: 0.9rem; margin-top: 4px;'>✓ Total: <strong>100%</strong></div>")
+        elif diff < 0:
+            return ui.HTML(f"<div style='color: #dc2626; font-size: 0.9rem; margin-top: 4px;'>⚠ Total: <strong>{_fmt(total)}</strong> ({_fmt(abs(diff))} remaining to allocate) — <em>Ranking paused</em></div>")
+        else:
+            return ui.HTML(f"<div style='color: #dc2626; font-size: 0.9rem; margin-top: 4px;'>⚠ Total: <strong>{_fmt(total)}</strong> ({_fmt(diff)} above 100%) — <em>Ranking paused</em></div>")
+
+    @reactive.Calc
+    def evaluated_results():
+        m = input.model_select()
+        d = input.depth_select()
+        if not m or not d or not weights_valid():
+            return [], [], []
+
+        df = load_metrics_data()
+        return calculate_scenario_rankings(
+            df=df,
+            model=m,
+            depth=d,
+            weight_accuracy=input.w_acc() or 0,
+            weight_contiguity=input.w_cont() or 0,
+            weight_residual=input.w_res() or 0,
+            weight_replicon=input.w_rep() or 0,
+            gate_complete=input.gate_complete(),
+            gate_zero_hits=input.gate_zero_hits(),
+        )
+
+    @output
+    @render.ui
+    def shortlist_content():
+        m = input.model_select()
+        d = input.depth_select()
+        if not m or not d:
+            return ui.HTML("<div class='alert alert-info' role='status'><strong>Notice:</strong> Please select both a basecalling model and sequencing depth in step 1 to view recommendations. (Selections begin unset.)</div>")
+
+        if not weights_valid():
+            return ui.HTML("<div class='alert alert-warning' role='alert'><strong>Ranking paused:</strong> Allocation must total exactly 100% before recommendations can be evaluated.</div>")
+
+        eligible, excluded, insufficient = evaluated_results()
+        if not eligible and not excluded and not insufficient:
+            return ui.HTML("<p class='text-muted'>No benchmark data found for this scenario.</p>")
+
+        # Excluded combinations HTML
+        n_excluded = len(excluded)
+        if n_excluded == 0:
+            excluded_html = "<details style='margin-top: 18px;'><summary style='cursor: pointer; font-weight: 500; color: #475569;'>Excluded / Ineligible Combinations (0)</summary><p style='margin-top: 8px; font-size: 0.9rem; color: #64748b;'>All evaluated combinations are currently eligible under active criteria.</p></details>"
+        else:
+            ex_items = "".join(f"<li><strong>{r['combo']}</strong>: {'; '.join(r['reasons'])}</li>" for r in excluded)
+            excluded_html = f"<details style='margin-top: 18px;'><summary style='cursor: pointer; font-weight: 500; color: #dc2626;'>Excluded / Ineligible Combinations ({n_excluded})</summary><ul style='margin-top: 8px; font-size: 0.9rem;'>{ex_items}</ul></details>"
+
+        # Insufficient data HTML
+        insufficient_html = ""
+        n_insufficient = len(insufficient)
+        if n_insufficient > 0:
+            ins_items = "".join(f"<li><strong>{r['combo']}</strong>: {'; '.join(r['reasons'])}</li>" for r in insufficient)
+            insufficient_html = f"<details style='margin-top: 10px;' id='details-insufficient-data'><summary style='cursor: pointer; font-weight: 500; color: #b45309;'>Insufficient Benchmark Data ({n_insufficient})</summary><ul style='margin-top: 8px; font-size: 0.9rem;'>{ins_items}</ul></details>"
+
+        if len(eligible) == 0:
+            return ui.HTML(f"""
+                <div class='alert alert-warning' role='status' id='no-eligible-msg'>
+                    <strong>No combinations meet requirements:</strong> No evaluated combination meets the active eligibility requirements. All gates have been preserved; requirements are not automatically relaxed.
+                </div>
+                <div style='margin-bottom: 12px;'>
+                    <a id='download_recommendations_csv' class='btn btn-sm btn-outline-success shiny-download-link' href='' target='_blank' download='' role='button' title='Download complete reproducible recommendation state CSV'>
+                        📥 Download CSV Export (All 17 Combinations)
+                    </a>
+                </div>
+                {excluded_html}
+                {insufficient_html}
+            """)
+
+        limit = len(eligible) if show_all.get() else 5
+        displayed_eligible = eligible[:limit]
+        if len(eligible) == 17:
+            btn_label = "Show Top 5 Only" if show_all.get() else "Reveal All 17 Combinations"
+        else:
+            btn_label = "Show Top 5 Only" if show_all.get() else f"Reveal All {len(eligible)} Combinations"
+
+        table_rows = []
+        for r in displayed_eligible:
+            near_tie_html = '<br><span class="near-tie-badge" title="Adjacent eligible results differ by less than 1.0 point (descriptive qualifier; not statistically equivalent)">similar overall scores</span>' if r["is_near_tie"] else ""
+
+            warnings_html = ""
+            if r["warnings"]:
+                w_items = "".join(f"<li>{w}</li>" for w in r["warnings"])
+                warnings_html = f"<ul class='list-unstyled mb-0 small text-danger' style='font-size: 0.8rem;'>{w_items}</ul>"
+            else:
+                warnings_html = "<span class='text-success small' style='font-size: 0.8rem;'>✓ Clean</span>"
+
+            row_html = f"""
+            <tr>
+                <td class='text-center fw-bold'>{r['rank']}</td>
+                <td><strong>{r['combo']}</strong></td>
+                <td class='text-center'><strong style='font-size: 1.05rem;'>{r['display_score']}</strong>{near_tie_html}</td>
+                <td>
+                    <div class='fw-bold'>{r['accuracy']}</div>
+                    <div class='text-muted small' style='font-size: 0.8rem;'>{r['mean_error_rate']:.2f} err/100kbp<br>({r['mean_mismatches']:.2f} mm, {r['mean_indels']:.2f} indel)</div>
+                </td>
+                <td>
+                    <div class='fw-bold'>{r['contiguity']}</div>
+                    <div class='text-muted small' style='font-size: 0.8rem;'>auNGA: {r['mean_aunga']:.3f}</div>
+                </td>
+                <td>
+                    <div class='fw-bold'>{r['residual']}</div>
+                    <div class='text-muted small' style='font-size: 0.8rem;'>{r['t_hits']} hit(s) ({r['affected_residual_isolates']} affected, {r['clean_isolates']}/13 clean)</div>
+                </td>
+                <td>
+                    <div class='fw-bold'>{r['replicon']}</div>
+                    <div class='text-muted small' style='font-size: 0.8rem;'>{r['t_miss']} missed ({r['full_missed']} full, {r['partial_missed']} partial; {r['affected_replicon_isolates']} affected)</div>
+                </td>
+                <td>{warnings_html}</td>
+            </tr>
+            """
+            table_rows.append(row_html)
+
+        tbody_html = "".join(table_rows)
+
+        return ui.HTML(f"""
+            <div style='margin-bottom: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;'>
+                <button id='btn_reveal_all' type='button' class='btn btn-sm btn-outline-primary action-button'>{btn_label}</button>
+                <a id='download_recommendations_csv' class='btn btn-sm btn-outline-success shiny-download-link' href='' target='_blank' download='' role='button' title='Download complete reproducible recommendation state CSV'>
+                    📥 Download CSV Export (All 17 Combinations)
+                </a>
+            </div>
+            <div class='table-responsive'>
+                <table class='table table-hover table-striped table-bordered ranking-table align-middle' aria-label='Recommendation Shortlist'>
+                    <thead>
+                        <tr>
+                            <th scope='col' class='text-center' style='width: 6%;'>Rank</th>
+                            <th scope='col' style='width: 16%;'>Combination</th>
+                            <th scope='col' class='text-center' style='width: 13%;'>Preference Score</th>
+                            <th scope='col' style='width: 17%;'>Sequence Accuracy</th>
+                            <th scope='col' style='width: 15%;'>Reference Contiguity</th>
+                            <th scope='col' style='width: 16%;'>Residual Removal</th>
+                            <th scope='col' style='width: 17%;'>Replicon Recovery</th>
+                            <th scope='col'>Diagnostics</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {tbody_html}
+                    </tbody>
+                </table>
+            </div>
+            {excluded_html}
+            {insufficient_html}
+        """)
+
+    @output
+    @render.ui
+    def selected_combo_detail():
+        m = input.model_select()
+        d = input.depth_select()
+        if not m or not d:
+            return ui.HTML("<div class='text-muted' style='font-size: 0.95rem; font-style: italic;'>Select a scenario in step 1 to inspect per-isolate evidence and diagnostics.</div>")
+
+        eligible, _, _ = evaluated_results()
+        if not eligible:
+            return ui.HTML("<div class='alert alert-secondary' style='font-size: 0.95rem;'>No combination meets active eligibility requirements. Adjust gates or priorities to inspect combination details.</div>")
+
+        # Determine target combination based on user dropdown selection or leader fallback
+        selected_key = input.selected_combo()
+        target = None
+        if selected_key:
+            for item in eligible:
+                if item["combo"] == selected_key:
+                    target = item
+                    break
+        if target is None:
+            target = eligible[0]
+
+        if target.get("is_insufficient_data"):
+            return ui.HTML(f"""
+                <div class='alert alert-warning' role='status'>
+                    <h4 style='margin-top: 0; font-size: 1.1rem; color: #92400e;'>Combination: <strong>{target['combo']}</strong> (Insufficient Benchmark Data)</h4>
+                    <p style='margin-bottom: 0;'>{'; '.join(target['reasons'])}</p>
+                </div>
+            """)
+
+        isolate_metrics = target["raw_group"]
+        iso_acc_scores = target["isolate_acc_scores"]
+        iso_cont_scores = target["isolate_cont_scores"]
+
+        if target["is_eligible"]:
+            rank_display = f"Rank {target['rank']} &nbsp;|&nbsp; Preference Score: <strong>{target['display_score']}</strong>"
+        else:
+            rank_display = f"<span class='text-danger fw-bold'>Excluded from ranking</span> &nbsp;|&nbsp; Evaluated Score: {target['display_score']}"
+
+        # Concrete warnings box
+        if target["warnings"]:
+            w_list = "".join(f"<li style='margin-bottom: 3px;'><strong>⚠ [Warning]</strong> {w}</li>" for w in target["warnings"])
+            warnings_box = f"""
+                <div style='background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 10px 14px; margin-top: 12px; border-radius: 4px;'>
+                    <div style='font-weight: 600; color: #991b1b; margin-bottom: 4px; font-size: 0.9rem;'>Detected Weakness & Event Warnings:</div>
+                    <ul class='list-unstyled mb-0' style='font-size: 0.85rem; color: #b91c1c;'>
+                        {w_list}
+                    </ul>
+                </div>
+            """
+        else:
+            warnings_box = """
+                <div style='background-color: #f0fdf4; border-left: 4px solid #22c55e; padding: 10px 14px; margin-top: 12px; border-radius: 4px;'>
+                    <span class='text-success fw-bold' style='font-size: 0.9rem;'>✓ [Clean] No warnings detected for this combination across all 13 isolates.</span>
+                </div>
+            """
+
+        # Supporting diagnostics box
+        supporting_box = f"""
+            <div style='background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; margin-top: 12px;'>
+                <div style='font-weight: 600; color: #334155; font-size: 0.9rem; margin-bottom: 4px;'>
+                    Supporting Diagnostics (Inspected without changing the four primary criteria):
+                </div>
+                <div style='font-size: 0.85rem; color: #475569;'>
+                    Duplication Ratio: <strong>{target['mean_duplication_ratio']:.3f}</strong> (cohort mean) &nbsp;|&nbsp;
+                    Misassemblies: <strong>{target['total_misassemblies']}</strong> (cohort total events) &nbsp;|&nbsp;
+                    Error Components: <strong>{target['mean_mismatches']:.2f}</strong> mm/100kbp, <strong>{target['mean_indels']:.2f}</strong> indels/100kbp (Combined: <strong>{target['mean_error_rate']:.2f}</strong>/100kbp)
+                </div>
+            </div>
+        """
+
+        # SVG Dot plots
+        acc_svg = render_dot_plot_svg(
+            title="Sequence Accuracy: Per-Isolate Scores (0–100 scale)",
+            plot_id="accuracy-dot-plot",
+            isolate_scores=iso_acc_scores,
+            cohort_mean=target["accuracy"],
+        )
+        cont_svg = render_dot_plot_svg(
+            title="Reference Contiguity: Per-Isolate Scores (0–100 scale)",
+            plot_id="contiguity-dot-plot",
+            isolate_scores=iso_cont_scores,
+            cohort_mean=target["contiguity"],
+        )
+
+        sorted_samples = sorted(iso_acc_scores.keys())
+        acc_text_rows = "".join(
+            f"<tr><td><code>{s}</code></td><td>{iso_acc_scores[s]:.1f}</td><td>{iso_acc_scores[s] - target['accuracy']:+.1f}</td></tr>"
+            for s in sorted_samples
+        )
+        acc_text_interp = f"""
+            <div id='text-interpretation-accuracy' class='text-interpretation-box'>
+                <details>
+                    <summary style='cursor: pointer; font-weight: 600;'>Textual Interpretation: Sequence Accuracy Scores by Isolate (Cohort Mean: {target['accuracy']:.1f})</summary>
+                    <p style='margin-top: 6px; margin-bottom: 8px;'>Isolate accuracy scores on fixed 0–100 scale (100 = 0 errors, 0 = ≥10 errors/100kbp) with departure from cohort mean {target['accuracy']:.1f}:</p>
+                    <div class='table-responsive'>
+                        <table class='table table-sm table-striped mb-0' style='font-size: 0.8rem;' aria-label='Sequence accuracy per-isolate textual data'>
+                            <thead><tr><th>Isolate</th><th>Accuracy Score</th><th>Difference from Cohort Mean</th></tr></thead>
+                            <tbody>{acc_text_rows}</tbody>
+                        </table>
+                    </div>
+                </details>
+            </div>
+        """
+
+        cont_text_rows = "".join(
+            f"<tr><td><code>{s}</code></td><td>{iso_cont_scores[s]:.1f}</td><td>{iso_cont_scores[s] - target['contiguity']:+.1f}</td></tr>"
+            for s in sorted_samples
+        )
+        cont_text_interp = f"""
+            <div id='text-interpretation-contiguity' class='text-interpretation-box'>
+                <details>
+                    <summary style='cursor: pointer; font-weight: 600;'>Textual Interpretation: Reference Contiguity Scores by Isolate (Cohort Mean: {target['contiguity']:.1f})</summary>
+                    <p style='margin-top: 6px; margin-bottom: 8px;'>Isolate contiguity scores on fixed 0–100 scale (100 = auNGA ratio 1.0) with departure from cohort mean {target['contiguity']:.1f}:</p>
+                    <div class='table-responsive'>
+                        <table class='table table-sm table-striped mb-0' style='font-size: 0.8rem;' aria-label='Reference contiguity per-isolate textual data'>
+                            <thead><tr><th>Isolate</th><th>Contiguity Score</th><th>Difference from Cohort Mean</th></tr></thead>
+                            <tbody>{cont_text_rows}</tbody>
+                        </table>
+                    </div>
+                </details>
+            </div>
+        """
+
+        # Sparse events table (Residual hits & Replicon losses)
+        sparse_rows = []
+        full_detail_rows = []
+        for _, row in isolate_metrics.iterrows():
+            sample_name = str(row["sample"])
+            aunga = float(row["auNGA_ratio"])
+            cont_score = iso_cont_scores.get(sample_name, 0.0)
+            err_rate = float(row["Mismatches per 100kbp"]) + float(row["Indels per 100kbp"])
+            acc_score = iso_acc_scores.get(sample_name, 0.0)
+            res_hits = int(row["contamination_count"])
+            missed_rep = int(row["total_missed"])
+            full_missed_count = int(row["full_missed"])
+            partial_missed_count = int(row["partial_missed"])
+            duplication_val = float(row["Duplication_ratio"]) if "Duplication_ratio" in row and pd.notna(row["Duplication_ratio"]) else 1.0
+            misassembly_val = int(row["misassemblies"]) if "misassemblies" in row and pd.notna(row["misassemblies"]) else 0
+            cov_str = str(row.get("all_contigs_coverage", ""))
+
+            # Sparse event status
+            if res_hits == 0:
+                res_status = "<span class='text-success'>0 hits [✓ Clean]</span>"
+            else:
+                res_status = f"<span class='text-danger fw-bold'>⚠ {res_hits} hit(s) detected</span>"
+
+            if missed_rep == 0:
+                rep_status = "<span class='text-success'>0 missed [✓ Intact]</span>"
+            else:
+                rep_status = f"<span class='text-danger fw-bold'>⚠ {missed_rep} missed ({full_missed_count} full, {partial_missed_count} partial)</span>"
+
+            sparse_rows.append(f"""
+                <tr>
+                    <td><code>{sample_name}</code></td>
+                    <td>{res_status}</td>
+                    <td>{rep_status}</td>
+                    <td class='small text-muted' style='font-size: 0.75rem;'>{cov_str}</td>
+                </tr>
+            """)
+
+            full_detail_rows.append(f"""
+                <tr>
+                    <td><code>{sample_name}</code></td>
+                    <td>{aunga:.3f} <span class='text-muted'>(score {cont_score:.1f})</span></td>
+                    <td>{err_rate:.2f} <span class='text-muted'>({float(row['Mismatches per 100kbp']):.2f} mm, {float(row['Indels per 100kbp']):.2f} indel; score {acc_score:.1f})</span></td>
+                    <td>{duplication_val:.3f}</td>
+                    <td>{misassembly_val}</td>
+                    <td>{res_hits}</td>
+                    <td>{missed_rep} <span class='text-muted'>({full_missed_count}f, {partial_missed_count}p)</span></td>
+                    <td class='small text-muted' style='font-size: 0.75rem;'>{cov_str}</td>
+                </tr>
+            """)
+
+        sparse_tbody = "".join(sparse_rows)
+        full_detail_tbody = "".join(full_detail_rows)
+
+        return ui.HTML(f"""
+            <div style='background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 16px 18px; margin-bottom: 20px;'>
+                <h4 style='margin-top: 0; font-size: 1.15rem; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;'>
+                    Combination Evidence: <strong>{target['combo']}</strong> ({rank_display})
+                </h4>
+                <div style='font-size: 0.95rem; color: #334155; margin-top: 8px;'>
+                    Contiguity: <strong>{target['contiguity']}</strong> (mean auNGA: {target['mean_aunga']:.3f}) &nbsp;|&nbsp;
+                    Accuracy: <strong>{target['accuracy']}</strong> ({target['mean_error_rate']:.2f} err/100kbp) &nbsp;|&nbsp;
+                    Residual Removal: <strong>{target['residual']}%</strong> ({target['t_hits']} hit(s)) &nbsp;|&nbsp;
+                    Replicon Recovery: <strong>{target['replicon']}</strong> ({target['t_miss']} missed)
+                </div>
+                {supporting_box}
+                {warnings_box}
+            </div>
+
+            <!-- Per-Isolate Dot Plots Section -->
+            <div style='margin-bottom: 24px;'>
+                <h5 style='font-size: 1.05rem; font-weight: 600; color: #1e293b; margin-bottom: 4px;'>
+                    Per-Isolate Dot Plots with Cohort Means:
+                </h5>
+                <p class='text-muted small' style='margin-bottom: 12px;'>
+                    Plotted across all 13 reference bacterial isolates with cohort means indicated.
+                    No population confidence intervals or radar charts are presented as these 13 reference isolates constitute the entire benchmark cohort.
+                </p>
+                <div class='row'>
+                    <div class='col-12 col-xl-6'>
+                        <div class='dot-plot-container'>
+                            {acc_svg}
+                            {acc_text_interp}
+                        </div>
+                    </div>
+                    <div class='col-12 col-xl-6'>
+                        <div class='dot-plot-container'>
+                            {cont_svg}
+                            {cont_text_interp}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sparse Events Table Section -->
+            <div style='margin-bottom: 24px;'>
+                <h5 style='font-size: 1.05rem; font-weight: 600; color: #1e293b; margin-bottom: 4px;'>
+                    Sparse-Event Evidence: Residual Hits & Replicon Losses:
+                </h5>
+                <p class='text-muted small' style='margin-bottom: 8px;'>
+                    Direct isolate-level event counts for residual adapter/barcode hits and reference replicon losses (&lt;50% coverage):
+                </p>
+                <div class='table-responsive'>
+                    <table id='sparse-events-table' class='table table-sm table-striped table-bordered align-middle' style='font-size: 0.85rem;' aria-label='Sparse residual hit and replicon loss events per isolate'>
+                        <thead style='background-color: #f1f5f9;'>
+                            <tr>
+                                <th scope='col' style='width: 22%;'>Isolate</th>
+                                <th scope='col' style='width: 26%;'>Residual Adapter/Barcode Hits</th>
+                                <th scope='col' style='width: 26%;'>Replicon Losses (&lt;50% cov)</th>
+                                <th scope='col'>Coverage Summary</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {sparse_tbody}
+                        </tbody>
+                        <tfoot style='background-color: #f8fafc; font-weight: 600;'>
+                            <tr>
+                                <td>Cohort Totals:</td>
+                                <td>{target['t_hits']} hit(s) ({target['affected_residual_isolates']} affected, {target['clean_isolates']}/13 clean)</td>
+                                <td>{target['t_miss']} missed ({target['full_missed']} full, {target['partial_missed']} partial; {target['affected_replicon_isolates']} affected)</td>
+                                <td class='text-muted small'>Evaluated across 13 reference isolates</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Complete Isolate Breakdown Table -->
+            <details style='margin-bottom: 20px;'>
+                <summary style='cursor: pointer; font-weight: 600; color: #334155;'>Complete Per-Isolate Benchmark Evidence & Metrics Table (13 Isolates)</summary>
+                <div class='table-responsive' style='margin-top: 10px;'>
+                    <table class='table table-sm table-bordered' style='font-size: 0.85rem;' aria-label='Comprehensive per-isolate benchmark metrics'>
+                        <thead style='background-color: #f1f5f9;'>
+                            <tr>
+                                <th>Isolate</th>
+                                <th>auNGA Ratio (Contiguity)</th>
+                                <th>Errors/100kbp (Accuracy)</th>
+                                <th>Duplication Ratio</th>
+                                <th>Misassemblies</th>
+                                <th>Residual Hits</th>
+                                <th>Missed Replicons</th>
+                                <th>Coverage Summary</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {full_detail_tbody}
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        """)
+
+    @render.download(
+        filename=lambda: f"qc_trimming_recommendations_{input.model_select()}_{input.depth_select()}_{input.preset_select()}.csv",
+        media_type="text/csv"
+    )
+    def download_recommendations_csv():
+        m = input.model_select()
+        d = input.depth_select()
+        if not m or not d or not weights_valid():
+            raise ValueError("Cannot generate CSV export: Scenario must be selected and weights must total 100%.")
+
+        df = load_metrics_data()
+        csv_content = generate_dashboard_csv_export(
+            df=df,
+            model=m,
+            depth=d,
+            preset=input.preset_select(),
+            weight_accuracy=input.w_acc() or 0,
+            weight_contiguity=input.w_cont() or 0,
+            weight_residual=input.w_res() or 0,
+            weight_replicon=input.w_rep() or 0,
+            gate_complete=input.gate_complete(),
+            gate_zero_hits=input.gate_zero_hits(),
+            config=app_config,
+        )
+        yield csv_content
+
+app = App(app_ui, server)
+```

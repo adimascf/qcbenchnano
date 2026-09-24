@@ -1,0 +1,7 @@
+name: fitlong
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - filtlong=0.3.1

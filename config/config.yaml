@@ -1,0 +1,25 @@
+pepfile: "config/pep/project_config.yaml"
+pepschema: "config/pep/pep_schema.yaml"
+
+repeat: 1
+
+model:
+  - sup
+  - hac
+
+depth:
+  - 20
+  # - 50
+  - 100
+
+trimming:
+  - porechop_abi
+  - dorado
+  - barbell
+
+quality:
+  - fastplong
+  - filtlong
+  - chopper
+  - seqkit
+

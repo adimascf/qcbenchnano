@@ -1,0 +1,11 @@
+pep_version: 2.1.0
+sample_table: "samples.csv"
+
+sample_modifiers:
+  derive:
+    attributes: [reads_dir, reference_path, mutreference_path, truth_vcf_path]
+    sources:
+      source1: "/scratch/user/s4897040/biox7021/data/fastqs"
+      source2: "/scratch/user/s4897040/biox7021/data/reference"
+      source3: "/scratch/user/s4897040/biox7021/data/mutreference"
+      source4: "/scratch/user/s4897040/biox7021/data/truth_vcf"

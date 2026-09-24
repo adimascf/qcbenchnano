@@ -1,0 +1,13 @@
+repository:
+  owner: "adimascf"
+  name: "biox7021"
+  base_url: "https://adimascf.github.io/biox7021/"
+  default_branch: "main"
+
+evidence:
+  source_data_path: "logbook/assembly_metrics.csv"
+  pinned_commit: "4d6b8cb1d482e5066f9ca575ebd3b67af4a32562"
+  bundled_data_path: "assets/data/assembly_metrics.csv"
+
+scoring:
+  version: "1.0"

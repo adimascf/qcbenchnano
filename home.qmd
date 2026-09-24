@@ -1,0 +1,30 @@
+---
+title: "Computational Lab Logbook"
+project: "Evaluating QC Tools for Oxford Nanopore Sequencing"
+format:
+  html:
+    toc: true
+    toc-depth: 5
+---
+
+# Project Overview {.unnumbered}
+
+This document records the computational work for the project: *Evaluating Quality Control (QC) Tools for Oxford Nanopore Sequencing (ONT) Sequencing Data Analysis*.
+
+## Recommendation System & Scoring Framework
+
+- **[QC Tool Recommendation Dashboard](tool_weighting.html):** Interactive multi-criteria recommendation dashboard for selecting long-read QC/trimming strategies.
+- **[Methods & Robustness Guide](methods_and_robustness.html):** Comprehensive mathematical formulations, policy calibrations, provenance, and empirical stability evidence (Scoring Specification 1.0).
+- **[Specification #10](https://github.com/adimascf/biox7021/issues/10):** Issue #10 interactive recommendation system and scoring specification.
+
+## Core Objectives
+
+1.  **Systematic Benchmarking:** Evaluate fastplong, Porechop, Dorado, and Barbell on real bacterial ONT datasets.
+2.  **Downstream Impact Assessment:** Measure the effect of the pre processing step on:
+    - Variant calling (DeepVariant / Clair3)
+    - Assembly quality (Flye / Raven)
+
+## Metrics for Evaluation
+
+- **Variant Calling:** F1 score, precision, recall,
+- **Assembly:** Structural accuracy, sequence accuracy, contamination, contigs recovery

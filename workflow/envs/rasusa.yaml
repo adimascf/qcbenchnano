@@ -1,0 +1,7 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - rasusa=3.0.0
+  - samtools=1.23.1

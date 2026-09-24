@@ -1,0 +1,233 @@
+---
+title: "Methods & Robustness: QC-Trimming Recommendation System"
+subtitle: "Scoring Specification 1.0 Methodological Reference, Formulations, Policy Anchors, and Stability Analyses"
+format:
+  html:
+    toc: true
+    toc-depth: 4
+    embed-resources: false
+    page-layout: article
+---
+
+::: {.callout-note appearance="simple" icon=false}
+**Scoring Specification:** 1.0 &nbsp;|&nbsp;
+**Parent Specification:** [GitHub Issue #10](https://github.com/adimascf/biox7021/issues/10) &nbsp;|&nbsp;
+**Specification Document:** [`docs/qc-trimming-recommendation-system-specification.md`](docs/qc-trimming-recommendation-system-specification.md) &nbsp;|&nbsp;
+**Pinned Benchmark Commit:** [`4d6b8cb`](https://github.com/adimascf/biox7021/commit/4d6b8cb1d482e5066f9ca575ebd3b67af4a32562)
+:::
+
+## 1. Overview & Architectural Role
+
+This document provides the authoritative methodological reference for the interactive QC-trimming recommendation dashboard and paper composite evaluation in the BIOX7021 benchmark.
+
+The interactive dashboard at [`tool_weighting.qmd`](tool_weighting.html) implements a concise, one-page decision journey. To preserve that clarity without sacrificing transparency, this separate **Methods & Robustness** page details every mathematical formulation, policy anchor, aggregation rule, preset definition, eligibility gate, diagnostic warning, missing-data policy, and repository robustness check.
+
+Readers and reviewers can inspect all design decisions, equations, empirical stability proofs, and limitations without interrupting the primary decision interface.
+
+---
+
+## 2. Benchmark Scope & Supported Scenarios
+
+The recommendation system evaluates long-read preprocessing (quality filtering and adapter/barcode trimming) for bacterial whole-genome sequencing:
+
+- **Benchmark Cohort:** 13 reference bacterial isolates spanning diverse GC contents, genome architectures, repeat structures, and plasmid counts:
+  - `AJ292__202310`, `AMtb_1__202402`, `ATCC_10708__202309`, `ATCC_17802__202309`, `ATCC_19119__202309`, `ATCC_25922__202309`, `ATCC_33560__202309`, `ATCC_35221__202309`, `ATCC_35897__202309`, `ATCC_BAA-679__202309`, `BPH2947__202310`, `MMC234__202311`, `RDH275__202311`.
+- **Tool Combinations (17 total):**
+  - Untrimmed / raw baselines: `unprocessed-untrimmed`, `chopper-untrimmed`, `filtlong-untrimmed`, `seqkit-untrimmed`.
+  - Porechop ABI combinations: `unprocessed-porechop_abi`, `chopper-porechop_abi`, `filtlong-porechop_abi`, `seqkit-porechop_abi`.
+  - Dorado combinations: `unprocessed-dorado`, `chopper-dorado`, `filtlong-dorado`, `seqkit-dorado`.
+  - Barbell combinations: `unprocessed-barbell`, `chopper-barbell`, `filtlong-barbell`, `seqkit-barbell`.
+  - All-in-one trimmer: `fastplong-all`.
+- **Supported Scenarios (4 distinct operational conditions):**
+  - **HAC 20×**: High-accuracy basecalling at 20× read depth.
+  - **HAC 100×**: High-accuracy basecalling at 100× read depth.
+  - **SUP 20×**: Super-accuracy basecalling at 20× read depth.
+  - **SUP 100×**: Super-accuracy basecalling at 100× read depth.
+- **Benchmark Size:** 13 isolates $\times$ 17 combinations $\times$ 2 basecallers $\times$ 2 depths = **884 observations**.
+- **Scenario Independence Policy:** Evaluation occurs strictly within one supported scenario at a time. The system deliberately rejects 50× (50x) depth (which lacks complete experimental coverage across isolates) and excludes pooled or cross-depth aggregate scenarios (`all models` or `all depths`). Cross-scenario pooling creates confounding between sequencing depth and tool effectiveness.
+
+---
+
+## 3. Four Fixed Value Functions (0–100 Rulers)
+
+Unlike earlier prototype iterations that relied on filter-dependent dynamic min–max rescaling or geometric aggregations, Scoring Specification 1.0 evaluates four fixed rulers anchored on unambiguous biological and methodological definitions. A score of 80 represents the exact same absolute fidelity across all scenarios and tool combinations.
+
+### 3.1. Reference-Aware Contiguity ($S_{\text{contiguity}}$)
+
+Contiguity is measured using QUAST's reference-aligned area under the NGA curve ($\text{auNGA}$), normalized to the known reference genome assembly length ($\text{auNGA\_ratio} = \frac{\text{auNGA}}{\text{reference\_length}}$).
+
+$$S_{\text{contiguity}} = 100 \times \max\left(0, 1 - \frac{|\text{auNGA\_ratio} - 1.0|}{1.0}\right) = 100 \times \max(0, 1 - |\text{auNGA\_ratio} - 1.0|)$$
+
+#### The Deliberate Symmetric auNGA Decision
+Standard assembly metrics (such as N50 or unnormalized auNG) treat larger values as monotonically better. However, when normalized against a finished reference genome:
+- **$\text{auNGA\_ratio} < 1.0$** indicates assembly fragmentation, missed structural sequence, or alignment breaks due to misassemblies.
+- **$\text{auNGA\_ratio} > 1.0$** indicates structural distortion: assembly duplication, failure to collapse diploid/haplotypic contigs, unmerged repeats, or artificial sequence expansion.
+
+Because both under-assembly and artificial expansion represent structural divergence from the true reference genome, a **symmetric distance penalty** around 1.0 is deliberately applied. Assemblies matching the reference length achieve a score of 100; deviations in either direction are penalized linearly to 0 at 0.0 or 2.0.
+
+### 3.2. Sequence Accuracy ($S_{\text{accuracy}}$)
+
+Sequence accuracy is evaluated from QUAST alignments as the combined mismatch and indel error event rate per 100 kbp of aligned reference genome:
+
+$$\text{events} = \text{Mismatches per 100kbp} + \text{Indels per 100kbp}$$
+
+$$S_{\text{accuracy}} = 100 \times \max\left(0, 1 - \frac{\text{events}}{10.0}\right)$$
+
+#### Project-Policy Calibration vs. Universal Biological Thresholds
+The zero-score anchor at **10 error events per 100 kbp** corresponds to Phred Q40 (99.99% base accuracy). This value is a **project-calibrated policy anchor** chosen specifically for Oxford Nanopore bacterial assemblies in this benchmark cohort. It is not an absolute universal law of biology. For high-coverage super-accuracy (SUP 100×) assemblies, errors typically fall well below 10/100kbp (yielding scores > 90), whereas higher-error conditions are cleanly differentiated.
+
+### 3.3. Residual Adapter & Barcode Removal ($S_{\text{residual}}$)
+
+Residual adapter and barcode removal evaluates the proportion of isolates in the cohort that are completely free of detected residual adapter or barcode hits:
+
+$$S_{\text{residual}} = 100 \times \frac{N_{\text{clean}}}{13}$$
+
+where $N_{\text{clean}}$ is the count of isolates with zero detected residual contaminant hits.
+
+#### Residual Hit Definition & Existing Validation
+- **Hit Detection Criteria:** A residual hit is defined as a sequence alignment against known Oxford Nanopore adapter and barcode sequences with 90% sequence identity (>= 90%) and 90% region-coverage (>= 90%) over the feature window.
+- **Relying on Existing Project Validation:** The scoring system relies directly on the project's existing, empirically validated contaminant-detection pipeline (`detect_adapter_contamination_cli.py` and Minimap2-based verification). No new synthetic spike-in or re-validation study was conducted or required.
+
+### 3.4. Reference Replicon Recovery ($S_{\text{replicon}}$)
+
+Reference replicon recovery penalizes catastrophic replicon losses across the 13 reference isolates:
+
+$$M = \text{full\_missed} + \text{partial\_missed}$$
+
+$$S_{\text{replicon}} = 100 \times \max\left(0, 1 - \frac{M}{3.0}\right)$$
+
+where $M$ is the cohort total count of replicons (chromosomes or plasmids) that have **$< 50\%$ reference coverage** in the assembled contigs, evaluated with a calibration anchor $B = 3.0$.
+
+#### Severe-Loss Score (< 50%) vs. Complete-Recovery Gate (>= 95%)
+- **Severe Replicon Loss (< 50% Coverage):** Replicons with less than 50% coverage represent severe, catastrophic assembly failures (e.g., completely lost plasmids or truncated chromosomes). These directly reduce the continuous criterion score $S_{\text{replicon}}$.
+- **Complete-Recovery Gate (>= 95% Coverage):** Users requiring high-stringency complete assemblies can activate the optional Complete Replicon Recovery gate, which demands that every expected replicon across all 13 isolates achieve >= 95% reference coverage (95% complete-recovery threshold).
+- **Critical Limits of Coverage as Structural Evidence:** High reference coverage (>= 95%) proves the sequence was recovered and aligned; **it is NOT proof of circularisation, structural correctness, contig contiguity, or a finished assembly**. An assembly can recover 98% of a replicon across ten fragmented, uncircularized contigs with misassemblies. Contiguity and accuracy must always be evaluated alongside coverage.
+
+---
+
+## 4. Cohort Aggregation & Arithmetic Trade-offs
+
+The scoring system aggregates individual isolate measurements into cohort-level scores using transparent, linear arithmetic operators:
+
+1. **Per-Isolate Scoring First:** For Contiguity ($s_{\text{cont},i}$) and Accuracy ($s_{\text{acc},i}$), individual scores are calculated for each isolate $i \in \{1, \dots, 13\}$ on the fixed 0–100 scale before cohort aggregation. This prevents extreme outlier isolates from being masked by raw averaging before clipping.
+2. **Cohort Arithmetic Mean:**
+   $$C_{\text{contiguity}} = \frac{1}{13} \sum_{i=1}^{13} s_{\text{cont},i}, \quad C_{\text{accuracy}} = \frac{1}{13} \sum_{i=1}^{13} s_{\text{acc},i}$$
+3. **Cohort-Level Properties:** Residual removal ($C_{\text{residual}}$) and Replicon recovery ($C_{\text{replicon}}$) are measured across the full 13-isolate cohort as defined above.
+4. **Weighted Preference-Alignment Score:**
+   $$S = \frac{w_{\text{acc}} C_{\text{accuracy}} + w_{\text{cont}} C_{\text{contiguity}} + w_{\text{res}} C_{\text{residual}} + w_{\text{rep}} C_{\text{replicon}}}{100}$$
+   where weights $w_j \ge 0$ sum to exactly $100\%$ ($\sum w_j = 100$).
+
+### Superseded Dynamic Min–Max and Geometric Formulations
+In early exploration phases, prototype scripts utilized sample-level min–max scaling and geometric mean aggregations with arbitrary epsilon floors ($0.01$). Those formulations suffered from critical methodological flaws:
+- Dynamic min–max made scores entirely dependent on which tools were included in the evaluation set. Adding or removing a poorly performing tool drastically shifted the scores of all other tools.
+- Geometric means with arbitrary epsilon floors distorted linear trade-offs and introduced severe non-linear penalties.
+
+**Scoring Specification 1.0 permanently retires dynamic min–max and geometric scoring.** Neither the dashboard nor the paper composite outputs present them as active options.
+
+---
+
+## 5. Presets, Custom Weights, and Eligibility Gates
+
+### 5.1. Presets
+The system provides four named preference configurations:
+
+| Preset Name | Accuracy ($w_{\text{acc}}$) | Contiguity ($w_{\text{cont}}$) | Residual ($w_{\text{res}}$) | Replicon ($w_{\text{rep}}$) | Default Gates | Description |
+| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| **Community-balanced** | **28%** | **20%** | **17%** | **35%** | None | Empirical mean weights derived from survey of 22 microbial bioinformaticians. |
+| **Complete-replicon-recovery** | 10% | 20% | 10% | **60%** | Complete Recovery | Prioritizes plasmid and chromosome retention; excludes combinations with $< 95\%$ coverage. |
+| **Sequence-accurate-assembly** | **60%** | 20% | 10% | 10% | None | Prioritizes base quality and low indel/mismatch rates for downstream variant calling. |
+| **Custom** | User-defined | User-defined | User-defined | User-defined | User-defined | Interactive exploration; weights must sum to exactly 100% with $\ge 1$ non-zero weight. |
+
+### 5.2. Eligibility Gates
+Users can apply two optional hard filtering gates:
+- **Complete Replicon Recovery Gate:** Excludes any tool combination if any expected replicon in any of the 13 reference isolates achieves $< 95.0\%$ reference coverage.
+- **Zero Residual Hits Gate:** Excludes any tool combination if even a single residual adapter or barcode hit is detected across the entire 13-isolate cohort ($N_{\text{hits}} > 0$).
+
+#### Gate Semantics & All-Ineligible State
+- Excluded combinations are **not ranked** (assigned `rank = None`). They are placed in an "Excluded Combinations" section beneath eligible recommendations with explicit reasons displayed.
+- **No-Eligible State:** If all combinations fail active gates, the dashboard presents a clear message: *"No tool combinations meet all active eligibility criteria"*. It does **not** silently relax gates or promote excluded combinations to eligible status.
+
+---
+
+## 6. Diagnostic Warnings, Near-Ties, and Missing Data
+
+### 6.1. Diagnostic Warnings
+To prevent cohort averages from hiding isolate-level failures, the system automatically surfaces concrete diagnostic warnings:
+1. **Isolate Variability Warning:** Triggered when the gap between the cohort mean score and the lowest individual isolate score is $\ge 25.0$ points for either Contiguity or Accuracy:
+   $$\text{Mean} - \min(s_i) \ge 25.0$$
+   *(Crucially, this warning is evaluated and displayed even if the user has assigned a weight of 0% to that criterion).*
+2. **Residual Hit Warning:** Triggered if a combination has $\ge 1$ detected residual hit, reporting the exact hit count and number of affected isolates.
+3. **Replicon Loss Warning:** Triggered if a combination has $\ge 1$ replicon with $< 50\%$ coverage, reporting full and partial miss breakdowns.
+
+### 6.2. Near-Tie Semantics
+Because benchmark scores represent empirical preference alignment rather than absolute population truths, adjacent ranked combinations differing by **less than 1.0 point** ($|S_a - S_b| < 1.0$) receive a visible near-tie indicator (`similar overall scores`). This is a descriptive qualifier indicating near-equivalent performance under the chosen weighting, not a claim of formal statistical indistinguishability.
+
+### 6.3. Missing-Data Policy
+If an isolate or tool combination lacks complete benchmark observations, the combination is partitioned into a dedicated **Insufficient Benchmark Data** section. The system displays explicit missing isolate keys and does **not** impute missing values or silently redistribute criterion weights.
+
+---
+
+## 7. Repository Robustness Evidence
+
+To verify the stability of Scoring Specification 1.0 without cluttering the main paper or dashboard, four deterministic robustness analyses were executed against the pinned benchmark data. The complete, reproducible outputs are stored in `results/robustness/`:
+
+### 7.1. Replicon Calibration Denominator Sensitivity ($B \in \{2, 3, 4\}$)
+Rankings were re-evaluated across alternative replicon calibration denominators $B = 2.0$, $B = 3.0$ (canonical), and $B = 4.0$ under Community-balanced weights:
+
+| Scenario | Winner ($B=2$) | Winner ($B=3$, Canonical) | Winner ($B=4$) | Winner Stable? | Max Rank Shift |
+| :--- | :--- | :--- | :--- | :---: | :---: |
+| **HAC 20×** | `seqkit-dorado` | `seqkit-dorado` | `seqkit-dorado` | **Yes** | 2 |
+| **HAC 100×** | `seqkit-barbell` | `seqkit-barbell` | `seqkit-barbell` | **Yes** | 0 |
+| **SUP 20×** | `chopper-porechop_abi` | `chopper-porechop_abi` | `chopper-porechop_abi` | **Yes** | 0 |
+| **SUP 100×** | `chopper-porechop_abi` | `chopper-porechop_abi` | `chopper-porechop_abi` | **Yes** | 3 |
+
+*Result:* The top recommendation is 100% invariant to the replicon loss denominator across all four scenarios. Machine-readable artifact: [`results/robustness/denominator_sensitivity.csv`](results/robustness/denominator_sensitivity.csv).
+
+### 7.2. Leave-One-Isolate-Out Stability (LOO)
+Rankings were re-evaluated leaving out each of the 13 reference bacterial isolates one at a time across all 4 scenarios (52 distinct sub-cohort evaluations):
+
+| Scenario | Canonical Winner | LOO Winner Match Frequency | Winner Stable Across All 13? | Max Rank Shift |
+| :--- | :--- | :---: | :---: | :---: |
+| **HAC 20×** | `seqkit-dorado` | 13/13 (100.0%) | **Yes** | 11 |
+| **HAC 100×** | `seqkit-barbell` | 10/13 (76.9%) | No (`seqkit-dorado` wins when BPH2947 omitted) | 16 |
+| **SUP 20×** | `chopper-porechop_abi` | 13/13 (100.0%) | **Yes** | 7 |
+| **SUP 100×** | `chopper-porechop_abi` | 13/13 (100.0%) | **Yes** | 12 |
+
+*Result:* In 51 of 52 sub-cohort evaluations, the winning combination remained identical. In HAC 100×, removing isolate `BPH2947__202310` shifts the top rank to `seqkit-dorado` because BPH2947 exhibits high misassemblies under barbell trimming. Machine-readable artifact: [`results/robustness/leave_one_out.csv`](results/robustness/leave_one_out.csv).
+
+### 7.3. Observed Respondent Profiles (22 Survey Participants)
+The individual weight allocations of all 22 survey respondents were applied directly to the canonical criterion scores:
+
+| Scenario | Leading Combination(s) | Winner Frequency among Observed Respondents |
+| :--- | :--- | :--- |
+| **HAC 20×** | `seqkit-dorado` | **22 / 22 (100.0%)** |
+| **HAC 100×** | `seqkit-barbell` | **21 / 22 (95.5%)**, `unprocessed-barbell`: 1/22 (4.5%) |
+| **SUP 20×** | `chopper-porechop_abi` | **21 / 22 (95.5%)**, `unprocessed-porechop_abi`: 1/22 (4.5%) |
+| **SUP 100×** | `chopper-porechop_abi` | **21 / 22 (95.5%)**, `seqkit-porechop_abi`: 1/22 (4.5%) |
+
+*Boundary Disclosure:* These respondent results are strictly descriptive of the 22 observed survey participants in this project and make no inferential claim of statistical representation for the wider bioinformatics community. Machine-readable artifact: [`results/robustness/respondent_profiles.csv`](results/robustness/respondent_profiles.csv).
+
+### 7.4. Repository Independence & Manifest
+These robustness checks exist solely as **repository-only evidence artifacts** and do not appear in the main paper or supplementary text.
+- Comprehensive Summary: [`results/robustness/summary.md`](results/robustness/summary.md)
+- Structured JSON Manifest: [`results/robustness/evidence_summary.json`](results/robustness/evidence_summary.json)
+
+---
+
+## 8. Data Provenance & Repository Independence
+
+To guarantee long-term reproducibility without embedding assumptions about GitHub repository names or user namespaces:
+- **Scoring Version:** `1.0`
+- **Pinned Benchmark Source Commit:** `4d6b8cb1d482e5066f9ca575ebd3b67af4a32562`
+- **Benchmark Source Data Hash (SHA-256):** `ee7a50a277fef6153a1cc05f9cc2afd227e940efbd36a4c2b0abe9a57580901b`
+- **Microbial QC Survey Hash (SHA-256):** `3e7cfddea1d70f28dbf0ec0a605e0a0e4201d8a77c82fc3d93e97e30380c297f`
+- **Repository Independence:** Repository owner, repository name, and deployment URLs are configured dynamically in `config/dashboard_config.yaml`. Moving, transferring, or renaming the repository does not alter scoring formulas, data hashes, or benchmark results.
+
+---
+
+## 9. Specification Link & Document References
+
+- **Parent GitHub Issue:** [Issue #10: Interactive QC-trimming recommendation system and scoring framework](https://github.com/adimascf/biox7021/issues/10)
+- **Specification Document:** [`docs/qc-trimming-recommendation-system-specification.md`](docs/qc-trimming-recommendation-system-specification.md)
+- **Dashboard Maintainer Architecture:** [`docs/dashboard.md`](docs/dashboard.md)
+- **Interactive Dashboard:** [`tool_weighting.qmd`](tool_weighting.html)

@@ -1,0 +1,91 @@
+project:
+  type: website
+  title: "BIOX7021 LOGBOOK - 2026"
+
+format:
+  html:
+    embed-resources: false
+    theme:
+      light: flatly
+      dark: darkly
+    filters:
+      - shinylive
+    toc: true
+    code-fold: true
+    code-copy: true
+    fig-align: center
+    smooth-scroll: true
+    lightbox: true
+    link-external-newwindow: true
+    fontsize: "12"
+    page-layout: article
+    grid:
+      body-width: 1100px
+
+website:
+  search: true
+  page-footer: "BIOX7021 Logbook - 2026"
+  navbar:
+    background: primary
+    left:
+      - text: Home
+        href: home.qmd
+      - text: QC Tool Selection
+        href: tool_weighting.qmd
+      - text: Methods & Robustness
+        href: methods_and_robustness.qmd
+      - text: Semester 1
+        menu:
+          - text: Week 1
+            href: logbook/semester1/week01.qmd
+          - text: Week 2
+            href: logbook/semester1/week02.qmd
+          - text: Week 3
+            href: logbook/semester1/week03.qmd
+          - text: Week 4
+            href: logbook/semester1/week04.qmd
+          - text: Week 5
+            href: logbook/semester1/week05.qmd
+          - text: Week 6
+            href: logbook/semester1/week06.qmd
+          - text: Week 7
+            href: logbook/semester1/week07.qmd
+          - text: Week 8
+            href: logbook/semester1/week08.qmd
+          - text: Week 9
+            href: logbook/semester1/week09.qmd
+          - text: Week 10
+            href: logbook/semester1/week10.qmd
+          - text: Week 11
+            href: logbook/semester1/week11.qmd
+          - text: Week 12
+            href: logbook/semester1/week12.qmd
+          - text: Week 13
+            href: logbook/semester1/week13.qmd
+          - text: Week 14
+            href: logbook/semester1/week14.qmd
+          - text: Week 15
+            href: logbook/semester1/week15.qmd
+          - text: Week 16
+            href: logbook/semester1/week16.qmd
+          - text: Week 17
+            href: logbook/semester1/week17.qmd
+          - text: Week 18
+            href: logbook/semester1/week18.qmd
+      - text: Semester 2
+        menu:
+          - text: Week 01
+            href: logbook/semester2/week01.qmd
+          - text: Week 02
+            href: logbook/semester2/week02.qmd
+          - text: Week 03
+            href: logbook/semester2/week03.qmd
+          - text: Week 04
+            href: logbook/semester2/week04.qmd
+          - text: Week 05
+            href: logbook/semester2/week05.qmd
+          - text: Week 06
+            href: logbook/semester2/week06.qmd
+      - text: Summary
+        href: summary.qmd
+        target: _blank

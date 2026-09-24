@@ -1,0 +1,44 @@
+# http://eido.databio.org/en/latest/writing-a-schema/
+description: A PEP schema for QC benchmark.
+imports:
+  - http://schema.databio.org/pep/2.1.0.yaml
+properties:
+  samples:
+    type: array
+    items:
+      type: object
+      properties:
+        sample_name:
+          type: string
+          description: "Name of the sample"
+        sequencing_kits:
+          type: string
+          description: "Sequencing kit that generated the data"
+        species:
+          type: string
+          description: "Species of the sample"
+        taxid:
+          type: string
+          description: "Taxonomic ID of the species"
+        reads_dir:
+          type: string
+          description: "Directory containing reads for this sample"
+        reference_path:
+          type: string
+          description: "Path to the sample's reference genome"
+        mutreference_path:
+          type: string
+          description: "Path to the mutated sample's reference genome"
+        truth_vcf_path:
+          type: string
+          description: "Path to the the truthset of variants" 
+      required_files:
+        - reads_dir
+        - reference_path
+        - mutreference_path
+        - truth_vcf_path
+      files:
+        - reads_dir
+        - reference_path
+        - mutreference_path
+        - truth_vcf_path
