@@ -216,14 +216,15 @@ def main():
     format_x_axis(ax_f)
     if ax_f.get_legend(): ax_f.get_legend().remove()
 
+    plt.tight_layout()
+
     # Top unified legend
     custom_handles = [Patch(facecolor=palette[i], edgecolor="black", label=hue_order[i]) for i in range(len(hue_order))]
     fig.legend(
-        handles=custom_handles, title="Depth", loc="upper center",
+        handles=custom_handles, title="Depth", loc="lower center",
         bbox_to_anchor=(0.5, 1.02), ncol=len(hue_order), fontsize=12, title_fontsize=13
     )
 
-    plt.tight_layout()
     Path(OUT_FIG).parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT_FIG, bbox_inches="tight")
     plt.close(fig)

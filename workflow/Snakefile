@@ -90,7 +90,7 @@ rule plot_param_explore_quality:
 	output:
 		figure=FIGURES / "param_explore_quality_{model}.png"
 	script:
-		"../scripts/plot_param_explore_quality.py"
+		"scripts/plot_param_explore_quality.py"
 
 include: RULES / "common.smk"
 include: RULES / "trim.smk"
