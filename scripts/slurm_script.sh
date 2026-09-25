@@ -10,7 +10,7 @@ if [[ ! -d "$LOG_DIR" ]]; then
 fi
 
 MEMORY="32G"
-TIME="${TIME:-3d}"
+TIME="${TIME:-7d}"
 THREADS=2
 BINDS="/scratch/user/s4897040"
 SINGULARITY_ARGS="-B $BINDS"

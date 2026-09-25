@@ -35,7 +35,7 @@ rule trim_porechop_abi_split:
 	threads: 32
 	resources:
 		mem="256GiB",
-		runtime=f"{24 * REPEAT}h"
+		runtime=f"{72 * REPEAT}h"
 	conda:
 		ENVS / "porechop_abi.yaml"
 	output:
@@ -56,7 +56,7 @@ rule trim_porechop_abi_discard:
 	threads: 32
 	resources:
 		mem="256GiB",
-		runtime=f"{24 * REPEAT}h"
+		runtime=f"{72 * REPEAT}h"
 	conda:
 		ENVS / "porechop_abi.yaml"
 	params:
@@ -79,7 +79,7 @@ rule trim_porechop_abi_nocheck:
 	threads: 32
 	resources:
 		mem="256GiB",
-		runtime=f"{24 * REPEAT}h"
+		runtime=f"{72 * REPEAT}h"
 	conda:
 		ENVS / "porechop_abi.yaml"
 	params:

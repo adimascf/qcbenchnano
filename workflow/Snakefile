@@ -89,7 +89,7 @@ rule plot_param_explore_trimming:
 	output:
 		figure=FIGURES / "param_explore_trimming_{model}.png"
 	script:
-		"../scripts/plot_param_explore_trimming.py"
+		"scripts/plot_param_explore_trimming.py"
 
 include: RULES / "common.smk"
 include: RULES / "trim.smk"
