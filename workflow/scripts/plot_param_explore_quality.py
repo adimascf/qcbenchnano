@@ -92,7 +92,7 @@ def main():
     fig, axes = plt.subplots(2, 3, figsize=(18, 11), dpi=300)
     axes = axes.flatten()
 
-    def format_x_axis(ax):
+    def format_x_axis(ax, order):
         ax.set_xlabel("")
         ax.set_xticks(range(len(order)))
         ax.set_xticklabels(order, rotation=45, ha="right", rotation_mode="anchor", fontsize=10)
@@ -101,16 +101,17 @@ def main():
     # --- Panel A: SNP F1 Score ---
     ax_a = axes[0]
     df_snp = df_call.query("VAR_TYPE == 'SNP'").copy()
+    order_snp = df_snp.groupby("tool")["F1_SCORE"].mean().sort_values(ascending=False).index.tolist()
     cap = 0.99999
     df_snp["plot_val"] = df_snp["F1_SCORE"].apply(lambda v: cap if v > cap else v)
     sns.stripplot(
         data=df_snp, x="tool", y="plot_val", hue="depth",
-        order=order, hue_order=hue_order, palette=palette, ax=ax_a,
+        order=order_snp, hue_order=hue_order, palette=palette, ax=ax_a,
         alpha=0.4, dodge=True, linewidth=0.5, edgecolor="black", zorder=1, size=4
     )
     sns.pointplot(
         data=df_snp, x="tool", y="plot_val", hue="depth",
-        order=order, hue_order=hue_order, palette=palette, ax=ax_a,
+        order=order_snp, hue_order=hue_order, palette=palette, ax=ax_a,
         dodge=0.3, errorbar=("ci", 95), capsize=0.1,
         err_kws={"linewidth": 1}, linewidth=1, markersize=5, estimator=np.mean, legend=False, zorder=2
     )
@@ -121,21 +122,22 @@ def main():
     ax_a.set_yticks(yticks)
     ax_a.set_yticklabels([f"{y*100:g}%" if y < cap else "100%" for y in yticks])
     ax_a.set_ylim(bottom=0.5)
-    format_x_axis(ax_a)
+    format_x_axis(ax_a, order_snp)
     if ax_a.get_legend(): ax_a.get_legend().remove()
 
     # --- Panel B: INDEL F1 Score ---
     ax_b = axes[1]
     df_indel = df_call.query("VAR_TYPE == 'INDEL'").copy()
+    order_indel = df_indel.groupby("tool")["F1_SCORE"].mean().sort_values(ascending=False).index.tolist()
     df_indel["plot_val"] = df_indel["F1_SCORE"].apply(lambda v: cap if v > cap else v)
     sns.stripplot(
         data=df_indel, x="tool", y="plot_val", hue="depth",
-        order=order, hue_order=hue_order, palette=palette, ax=ax_b,
+        order=order_indel, hue_order=hue_order, palette=palette, ax=ax_b,
         alpha=0.4, dodge=True, linewidth=0.5, edgecolor="black", zorder=1, size=4
     )
     sns.pointplot(
         data=df_indel, x="tool", y="plot_val", hue="depth",
-        order=order, hue_order=hue_order, palette=palette, ax=ax_b,
+        order=order_indel, hue_order=hue_order, palette=palette, ax=ax_b,
         dodge=0.3, errorbar=("ci", 95), capsize=0.1,
         err_kws={"linewidth": 1}, linewidth=1, markersize=5, estimator=np.mean, legend=False, zorder=2
     )
@@ -145,38 +147,40 @@ def main():
     ax_b.set_yticks(yticks)
     ax_b.set_yticklabels([f"{y*100:g}%" if y < cap else "100%" for y in yticks])
     ax_b.set_ylim(bottom=0.5)
-    format_x_axis(ax_b)
+    format_x_axis(ax_b, order_indel)
     if ax_b.get_legend(): ax_b.get_legend().remove()
 
     # --- Panel C: Total Errors per 100 kbp ---
     ax_c = axes[2]
+    order_errors = df_quast.groupby("tool")["Total_Errors"].mean().sort_values(ascending=True).index.tolist()
     sns.stripplot(
         data=df_quast, x="tool", y="Total_Errors", hue="depth",
-        order=order, hue_order=hue_order, palette=palette, ax=ax_c,
+        order=order_errors, hue_order=hue_order, palette=palette, ax=ax_c,
         alpha=0.4, dodge=True, linewidth=0.5, edgecolor="black", zorder=1, size=4
     )
     sns.pointplot(
         data=df_quast, x="tool", y="Total_Errors", hue="depth",
-        order=order, hue_order=hue_order, palette=palette, ax=ax_c,
+        order=order_errors, hue_order=hue_order, palette=palette, ax=ax_c,
         dodge=0.3, errorbar=("ci", 95), capsize=0.1,
         err_kws={"linewidth": 1}, linewidth=1, markersize=5, estimator=np.mean, legend=False, zorder=2
     )
     ax_c.set_title("C. Assembly Errors per 100kbp\n(Mismatches + Indels)", fontsize=13, pad=8)
     ax_c.set_ylabel("Total errors per 100kbp", fontsize=11)
-    format_x_axis(ax_c)
+    format_x_axis(ax_c, order_errors)
     if ax_c.get_legend(): ax_c.get_legend().remove()
 
     # --- Panel D: auNGA Contiguity Score ---
     ax_d = axes[3]
+    order_aunga = df_quast.groupby("tool")["auNGA_score"].mean().sort_values(ascending=False).index.tolist()
     df_quast["plot_aunga"] = df_quast["auNGA_score"].apply(lambda v: cap if v >= cap else (0.00001 if v <= 0 else v))
     sns.stripplot(
         data=df_quast, x="tool", y="plot_aunga", hue="depth",
-        order=order, hue_order=hue_order, palette=palette, ax=ax_d,
+        order=order_aunga, hue_order=hue_order, palette=palette, ax=ax_d,
         alpha=0.4, dodge=True, linewidth=0.5, edgecolor="black", zorder=1, size=4
     )
     sns.pointplot(
         data=df_quast, x="tool", y="plot_aunga", hue="depth",
-        order=order, hue_order=hue_order, palette=palette, ax=ax_d,
+        order=order_aunga, hue_order=hue_order, palette=palette, ax=ax_d,
         dodge=0.3, errorbar=("ci", 95), capsize=0.1,
         err_kws={"linewidth": 1}, linewidth=1, markersize=5, estimator=np.mean, legend=False, zorder=2
     )
@@ -187,33 +191,35 @@ def main():
     ax_d.set_yticks(yticks_aunga)
     ax_d.set_yticklabels([f"{y*100:g}%" if y < cap else "100%" for y in yticks_aunga])
     ax_d.set_ylim(bottom=0.5)
-    format_x_axis(ax_d)
+    format_x_axis(ax_d, order_aunga)
     if ax_d.get_legend(): ax_d.get_legend().remove()
 
     # --- Panel E: Total Missed Contigs ---
     ax_e = axes[4]
+    order_missed = df_missed_agg.groupby("tool")["total_missed"].sum().sort_values(ascending=True).index.tolist()
     sns.barplot(
         data=df_missed_agg, x="tool", y="total_missed", hue="depth",
-        order=order, hue_order=hue_order, palette=palette, ax=ax_e,
+        order=order_missed, hue_order=hue_order, palette=palette, ax=ax_e,
         edgecolor="black", linewidth=0.5
     )
     ax_e.set_title("E. Missed Contigs", fontsize=13, pad=8)
     ax_e.set_ylabel("Total missed contigs", fontsize=11)
     ax_e.yaxis.set_major_locator(MaxNLocator(integer=True))
-    format_x_axis(ax_e)
+    format_x_axis(ax_e, order_missed)
     if ax_e.get_legend(): ax_e.get_legend().remove()
 
     # --- Panel F: Total Contamination Count ---
     ax_f = axes[5]
+    order_contam = df_contam_agg.groupby("tool")["contamination_count"].sum().sort_values(ascending=True).index.tolist()
     sns.barplot(
         data=df_contam_agg, x="tool", y="contamination_count", hue="depth",
-        order=order, hue_order=hue_order, palette=palette, ax=ax_f,
+        order=order_contam, hue_order=hue_order, palette=palette, ax=ax_f,
         edgecolor="black", linewidth=0.5
     )
     ax_f.set_title("F. Contamination Count", fontsize=13, pad=8)
     ax_f.set_ylabel("Total contaminants", fontsize=11)
     ax_f.yaxis.set_major_locator(MaxNLocator(integer=True))
-    format_x_axis(ax_f)
+    format_x_axis(ax_f, order_contam)
     if ax_f.get_legend(): ax_f.get_legend().remove()
 
     plt.tight_layout()
