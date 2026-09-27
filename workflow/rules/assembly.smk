@@ -23,7 +23,7 @@ rule assembly_flye:
 	shell:
 		"""
 		tmp_results=$(mktemp -d)
-		flye --debug {params.ont} {params.min_overlap} {input.reads} --out-dir $tmp_results --threads {threads} 2> {log}
+		flye --debug {params.min_overlap} {params.ont} {input.reads} --out-dir $tmp_results --threads {threads} 2> {log}
 		mv "${{tmp_results}}"/assembly.fasta {output.assembly} 2>> {log}
 		mv "${{tmp_results}}"/assembly_graph.gfa {output.graph} 2>> {log}
 		mv "${{tmp_results}}"/assembly_info.txt {output.info} 2>> {log}
