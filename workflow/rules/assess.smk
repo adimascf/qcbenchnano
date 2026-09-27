@@ -119,7 +119,7 @@ rule assess_variant_sample_fnfp:
 rule assess_assembly_quast:
 	input:
 		assembly=rules.reorient_assembly_sample.output.assembly,
-		reference=rules.reorient_assembly_reference.output.assembly
+		reference=RESULTS_MAIN / "reference/dnaapler/{sample}_reoriented.fasta"
 	log:
 		LOGS / "assess/assembly/{tool}-{trimmer}/quast/{depth}x/{model}/{sample}.{tool}-{trimmer}.log"
 	threads: 4
@@ -217,7 +217,7 @@ rule compile_quast_metrics:
 				sample=SAMPLES,
 				model=MODELS),
 		fai=expand(
-				RESULTS / "reference/{sample}.fa.fai",
+				RESULTS_MAIN / "reference/{sample}.fa.fai",
 				sample=SAMPLES)
 	log:
 		LOGS / "assess/assembly/compile_quast_metrics.log"
@@ -292,7 +292,7 @@ rule plot_assembly_aunga:
 rule identify_missed_contigs:
 	input:
 		assembly=rules.reorient_assembly_sample.output.assembly,
-		reference=rules.reorient_assembly_reference.output.assembly
+		reference=RESULTS_MAIN / "reference/dnaapler/{sample}_reoriented.fasta"
 	log:
 		LOGS / "assembly/missed_contigs/{tool}-{trimmer}/{depth}x/{model}/{sample}.{tool}-{trimmer}.missed_contigs.log"
 	resources:

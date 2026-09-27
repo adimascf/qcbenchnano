@@ -2,7 +2,7 @@ REPEAT = int(config.get("repeat", 1))
 
 rule assembly_flye:
 	input:
-		reads=rules.downsample_rasusa.output.reads
+		reads=RESULTS_MAIN / "QC/downsampling/{tool}-{trimmer}/{depth}x/{model}/{sample}.{tool}-{trimmer}.rasusa.fastq"
 	log:
 		LOGS / "assembly/{tool}-{trimmer}/{depth}x/{model}/{sample}.{tool}-{trimmer}.flye.log"
 	threads: 16
@@ -13,6 +13,7 @@ rule assembly_flye:
 		ENVS / "flye.yaml"
 	params:
 		ont="--nano-hq",
+		min_overlap="--min-overlap 1000"
 	output:
 		assembly=RESULTS / "assembly/{tool}-{trimmer}/{depth}x/{model}/{sample}.{tool}-{trimmer}.{depth}x.assembly.fasta",
 		graph=RESULTS / "assembly/{tool}-{trimmer}/{depth}x/{model}/{sample}.{tool}-{trimmer}.{depth}x.assembly_graph.gfa",
@@ -22,7 +23,7 @@ rule assembly_flye:
 	shell:
 		"""
 		tmp_results=$(mktemp -d)
-		flye --debug {params.ont} {input.reads} --out-dir $tmp_results --threads {threads} 2> {log}
+		flye --debug {params.ont} {params.min_overlap} {input.reads} --out-dir $tmp_results --threads {threads} 2> {log}
 		mv "${{tmp_results}}"/assembly.fasta {output.assembly} 2>> {log}
 		mv "${{tmp_results}}"/assembly_graph.gfa {output.graph} 2>> {log}
 		mv "${{tmp_results}}"/assembly_info.txt {output.info} 2>> {log}

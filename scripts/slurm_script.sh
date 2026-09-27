@@ -10,9 +10,9 @@ if [[ ! -d "$LOG_DIR" ]]; then
 fi
 
 MEMORY="32G"
-TIME="${TIME:-3d}"
+TIME="${TIME:-7d}"
 THREADS=2
-BINDS="/scratch/user/s4897040"
+BINDS="/scratch/user/s4897040,/scratch/project/bug_seq_scratch"
 SINGULARITY_ARGS="-B $BINDS"
 DEFAULT_TMP="slurm_account=a_uqccr"
 CMD="snakemake --logger snakesee --sdm conda apptainer --executor slurm --jobs 500 --default-resources $DEFAULT_TMP --slurm-init-seconds-before-status-checks=20 --rerun-incomplete --local-cores $THREADS $* --singularity-args '$SINGULARITY_ARGS'"
