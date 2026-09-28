@@ -496,7 +496,7 @@ app_ui = ui.page_fluid(
                     "preset_select",
                     "Preference Preset",
                     {
-                        "community_balanced": "Community-balanced (28% Acc, 20% Contig, 17% Res, 35% Repl)",
+                        "community_balanced": "Community-balanced (27.4% Acc, 21.9% Contig, 16.3% Res, 34.4% Repl)",
                         "complete_replicon_recovery": "Complete-replicon-recovery (Gate: all replicons ≥95%)",
                         "sequence_accurate_assembly": "Sequence-accurate-assembly (50% Acc, 14% Contig, 12% Res, 24% Repl)",
                         "custom": "Custom Priorities"
@@ -517,10 +517,10 @@ app_ui = ui.page_fluid(
             {"role": "group", "aria-labelledby": "weights-label"},
             ui.tags.span({"id": "weights-label", "class": "sr-only"}, "Criterion percentage weights"),
             ui.layout_columns(
-                ui.input_numeric("w_acc", "Sequence Accuracy (%)", value=28, min=0, max=100, step=0.1),
-                ui.input_numeric("w_cont", "Reference Contiguity (%)", value=20, min=0, max=100, step=0.1),
-                ui.input_numeric("w_res", "Residual Adapter Removal (%)", value=17, min=0, max=100, step=0.1),
-                ui.input_numeric("w_rep", "Replicon Recovery (%)", value=35, min=0, max=100, step=0.1),
+                ui.input_numeric("w_acc", "Sequence Accuracy (%)", value=27.4, min=0, max=100, step=0.1),
+                ui.input_numeric("w_cont", "Reference Contiguity (%)", value=21.9, min=0, max=100, step=0.1),
+                ui.input_numeric("w_res", "Residual Adapter Removal (%)", value=16.3, min=0, max=100, step=0.1),
+                ui.input_numeric("w_rep", "Replicon Recovery (%)", value=34.4, min=0, max=100, step=0.1),
                 col_widths=(3, 3, 3, 3)
             ),
             ui.output_ui("weight_total_indicator")
@@ -976,7 +976,7 @@ def server(input, output, session):
     target_preset = reactive.Value(None)
 
     PRESET_DEFINITIONS = {
-        "community_balanced": (28.0, 20.0, 17.0, 35.0, False, False),
+        "community_balanced": (27.4, 21.9, 16.3, 34.4, False, False),
         "complete_replicon_recovery": (43.0, 31.0, 26.0, 0.0, True, False),
         "sequence_accurate_assembly": (50.0, 14.0, 12.0, 24.0, False, False),
     }
@@ -1131,7 +1131,7 @@ def server(input, output, session):
     def preset_description():
         p = input.preset_select()
         descriptions = {
-            "community_balanced": "Community-balanced: 28% sequence accuracy, 20% reference contiguity, 17% residual removal, 35% replicon recovery.",
+            "community_balanced": "Community-balanced: 27.4% sequence accuracy, 21.9% reference contiguity, 16.3% residual removal, 34.4% replicon recovery.",
             "complete_replicon_recovery": "Complete-replicon-recovery: Enforces ≥95% coverage on all reference replicons; ranks eligible tools with 43% accuracy, 31% contiguity, 26% residual removal.",
             "sequence_accurate_assembly": "Sequence-accurate-assembly: Prioritizes base-level sequence fidelity with 50% accuracy weight.",
             "custom": "Custom Priorities: Specify your own percentage weights totaling 100% and toggle non-compensatory gates."
@@ -1698,7 +1698,7 @@ app = App(app_ui, server)</code></pre>
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/adimascf\.github\.io\/qcbenchnano\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

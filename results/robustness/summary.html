@@ -358,7 +358,7 @@ window.Quarto = {
 </section>
 <section id="replicon-calibration-denominator-sensitivity-b-in-2-3-4" class="level2">
 <h2 class="anchored" data-anchor-id="replicon-calibration-denominator-sensitivity-b-in-2-3-4">1. Replicon Calibration Denominator Sensitivity (<span class="math inline">\(B \in \{2, 3, 4\}\)</span>)</h2>
-<p>Rankings were recomputed with replicon-loss denominators <span class="math inline">\(B = 2.0, 3.0, 4.0\)</span> while holding every other scoring-v1 decision fixed under Community-balanced weights (accuracy: 28%, contiguity: 20%, residual: 17%, replicon: 35%).</p>
+<p>Rankings were recomputed with replicon-loss denominators <span class="math inline">\(B = 2.0, 3.0, 4.0\)</span> while holding every other scoring-v1 decision fixed under Community-balanced weights (accuracy: 27.4%, contiguity: 21.9%, residual: 16.3%, replicon: 34.4%).</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 15%">
@@ -763,7 +763,7 @@ window.Quarto = {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/adimascf\.github\.io\/qcbenchnano\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

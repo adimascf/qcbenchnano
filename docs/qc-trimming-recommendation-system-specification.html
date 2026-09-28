@@ -414,7 +414,7 @@ ul.task-list li input[type="checkbox"] {
 <p>[ S_{}=. ]</p>
 <p>Custom weights must be non-negative percentages totalling exactly 100, and at least one criterion must be non-zero. The arithmetic model makes trade-offs explicit. Non-compensatory requirements are represented by eligibility gates rather than by a geometric mean or epsilon/shift workaround.</p>
 <ol start="13" type="1">
-<li><p><strong>Community-balanced preset.</strong> The preset uses the rounded survey allocations: 28% sequence accuracy, 20% reference-aware contiguity, 17% residual adapter/barcode removal, and 35% reference-replicon recovery. These sum to 100. The preset has no automatic gate and is described as the priorities of the surveyed group, not an objective optimum.</p></li>
+<li><p><strong>Community-balanced preset.</strong> The preset uses the rounded survey allocations: 27.4% sequence accuracy, 21.9% reference-aware contiguity, 16.3% residual adapter/barcode removal, and 34.4% reference-replicon recovery. These sum to 100. The preset has no automatic gate and is described as the priorities of the surveyed group, not an objective optimum.</p></li>
 <li><p><strong>Complete-replicon-recovery preset.</strong> Every expected reference replicon must have at least 95% reference coverage. Coverage alone does not claim circularisation or structural validation. Among eligible combinations, ranking uses 43% sequence accuracy, 31% reference-aware contiguity, and 26% residual adapter/barcode removal. Replicon recovery is enforced by the gate and is not counted again as a ranking advantage.</p></li>
 <li><p><strong>Sequence-accurate-assembly preset.</strong> This preset uses 50% sequence accuracy, 14% reference-aware contiguity, 12% residual adapter/barcode removal, and 24% reference-replicon recovery. It has no additional automatic gate.</p></li>
 <li><p><strong>Custom-priorities preset.</strong> The user enters four percentages. Both optional advanced gates are off initially. The complete-recovery gate applies the same 95%-per-replicon rule as the corresponding preset. The zero-residual-hit gate requires zero detected hits across all 13 isolates. Editing any preset weight or gate changes the visible mode to Custom; selecting a named preset replaces all weights and gate states.</p></li>
@@ -584,7 +584,7 @@ ul.task-list li input[type="checkbox"] {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/adimascf\.github\.io\/qcbenchnano\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
