@@ -27,7 +27,7 @@ def test_generate_paper_composite_results_parity_and_fixtures():
     expected_leaders = {
         Scenario("hac", "20x"): {
             "combo": "seqkit-dorado",
-            "display_score": 94.6,
+            "display_score": 94.7,
             "score_accuracy": 80.9,
             "score_contiguity": 99.9,
             "score_residual": 100.0,
@@ -43,7 +43,7 @@ def test_generate_paper_composite_results_parity_and_fixtures():
         },
         Scenario("sup", "20x"): {
             "combo": "chopper-porechop_abi",
-            "display_score": 97.5,
+            "display_score": 97.6,
             "score_accuracy": 91.1,
             "score_contiguity": 100.0,
             "score_residual": 100.0,
@@ -163,10 +163,10 @@ def test_generate_paper_summary_dataframe_schema_and_values():
     assert (summary_df["analysis_description"] == "survey-weighted decision analysis (preference alignment)").all()
     assert (summary_df["preset"] == "community_balanced").all()
     assert (summary_df["scoring_version"] == "1.0").all()
-    assert (summary_df["weight_accuracy"] == 28.0).all()
-    assert (summary_df["weight_contiguity"] == 20.0).all()
-    assert (summary_df["weight_residual"] == 17.0).all()
-    assert (summary_df["weight_replicon"] == 35.0).all()
+    assert (summary_df["weight_accuracy"] == 27.4).all()
+    assert (summary_df["weight_contiguity"] == 21.9).all()
+    assert (summary_df["weight_residual"] == 16.3).all()
+    assert (summary_df["weight_replicon"] == 34.4).all()
 
 
 def test_export_paper_summary_csv(tmp_path):

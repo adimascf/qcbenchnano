@@ -58,7 +58,7 @@ PRESETS: Dict[PresetName, Preset] = {
         name=PresetName.COMMUNITY_BALANCED,
         title="Community-balanced",
         description="Rounded priorities from 22 microbial genomics community survey respondents.",
-        weights=WeightsConfig(accuracy=28.0, contiguity=20.0, residual=17.0, replicon=35.0),
+        weights=WeightsConfig(accuracy=27.4, contiguity=21.9, residual=16.3, replicon=34.4),
         gates=GateConfig(complete_recovery=False, zero_residual_hits=False),
     ),
     PresetName.COMPLETE_REPLICON_RECOVERY: Preset(

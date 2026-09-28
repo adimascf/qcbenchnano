@@ -65,12 +65,12 @@
           "3.0": 10,
           "4.0": 10
         },
-        "unprocessed-barbell": {
+        "seqkit-untrimmed": {
           "2.0": 11,
           "3.0": 11,
           "4.0": 11
         },
-        "seqkit-untrimmed": {
+        "unprocessed-barbell": {
           "2.0": 12,
           "3.0": 12,
           "4.0": 12
@@ -241,12 +241,12 @@
           "3.0": 6,
           "4.0": 6
         },
-        "seqkit-barbell": {
+        "seqkit-untrimmed": {
           "2.0": 7,
           "3.0": 7,
           "4.0": 7
         },
-        "seqkit-untrimmed": {
+        "seqkit-barbell": {
           "2.0": 8,
           "3.0": 8,
           "4.0": 8
@@ -431,7 +431,7 @@
         ],
         "unprocessed-porechop_abi": [
           3,
-          5
+          4
         ],
         "unprocessed-dorado": [
           4,
@@ -439,7 +439,7 @@
         ],
         "seqkit-barbell": [
           5,
-          7
+          8
         ],
         "unprocessed-untrimmed": [
           5,
@@ -458,16 +458,16 @@
           13
         ],
         "chopper-porechop_abi": [
-          4,
+          5,
           11
-        ],
-        "unprocessed-barbell": [
-          8,
-          12
         ],
         "seqkit-untrimmed": [
           8,
           16
+        ],
+        "unprocessed-barbell": [
+          7,
+          12
         ],
         "chopper-untrimmed": [
           12,
@@ -631,16 +631,16 @@
           6,
           8
         ],
-        "seqkit-barbell": [
-          6,
-          9
-        ],
         "seqkit-untrimmed": [
           7,
           10
         ],
+        "seqkit-barbell": [
+          7,
+          9
+        ],
         "unprocessed-barbell": [
-          8,
+          7,
           12
         ],
         "unprocessed-untrimmed": [
@@ -754,7 +754,7 @@
         ],
         "filtlong-dorado": [
           11,
-          15
+          16
         ],
         "filtlong-untrimmed": [
           13,

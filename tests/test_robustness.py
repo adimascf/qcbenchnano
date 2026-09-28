@@ -114,7 +114,7 @@ def test_run_respondent_profiles():
     from qc_scoring.robustness import run_respondent_profiles
 
     df = pd.read_csv("assets/data/assembly_metrics.csv")
-    survey_df = pd.read_csv("microbial-qc-survey.csv")
+    survey_df = pd.read_csv("assets/data/microbial-qc-survey.csv")
     assert len(survey_df) == 22, "Survey must have 22 observed respondent profiles"
 
     scenarios = [
@@ -168,7 +168,7 @@ def test_generate_robustness_evidence_and_acceptance_criteria(tmp_path):
     from qc_scoring.robustness import generate_robustness_evidence
 
     benchmark_csv = "assets/data/assembly_metrics.csv"
-    survey_csv = "microbial-qc-survey.csv"
+    survey_csv = "assets/data/microbial-qc-survey.csv"
     out_dir = tmp_path / "robustness"
 
     bundle = generate_robustness_evidence(

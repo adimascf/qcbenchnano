@@ -19,7 +19,7 @@ from qc_scoring.validation import EXPECTED_SAMPLES
 def test_presets_weights_and_gates():
     # Community-balanced
     cb = get_preset(PresetName.COMMUNITY_BALANCED)
-    assert cb.weights == WeightsConfig(accuracy=28.0, contiguity=20.0, residual=17.0, replicon=35.0)
+    assert cb.weights == WeightsConfig(accuracy=27.4, contiguity=21.9, residual=16.3, replicon=34.4)
     assert cb.gates == GateConfig(complete_recovery=False, zero_residual_hits=False)
 
     # Complete-replicon-recovery

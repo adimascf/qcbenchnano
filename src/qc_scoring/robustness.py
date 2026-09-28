@@ -587,7 +587,7 @@ def _generate_markdown_summary(
         "- **Outcome Interpretation**: A changed winner under alternative denominators, sub-cohorts, or preferences is reported as an empirical robustness result, not treated as a failed test.",
         "",
         "## 1. Replicon Calibration Denominator Sensitivity ($B \\in \\{2, 3, 4\\}$)",
-        "Rankings were recomputed with replicon-loss denominators $B = 2.0, 3.0, 4.0$ while holding every other scoring-v1 decision fixed under Community-balanced weights (accuracy: 28%, contiguity: 20%, residual: 17%, replicon: 35%).",
+        "Rankings were recomputed with replicon-loss denominators $B = 2.0, 3.0, 4.0$ while holding every other scoring-v1 decision fixed under Community-balanced weights (accuracy: 27.4%, contiguity: 21.9%, residual: 16.3%, replicon: 34.4%).",
         "",
         "| Scenario | Winner ($B=2$) | Winner ($B=3$, Canonical) | Winner ($B=4$) | Winner Stable? | Max Rank Shift |",
         "| :--- | :--- | :--- | :--- | :---: | :---: |",
@@ -719,11 +719,13 @@ def _generate_json_summary(
 
 def generate_robustness_evidence(
     benchmark_path: Union[str, Path] = "assets/data/assembly_metrics.csv",
-    survey_path: Union[str, Path] = "microbial-qc-survey.csv",
+    survey_path: Union[str, Path] = "assets/data/microbial-qc-survey.csv",
     output_dir: Union[str, Path] = "results/robustness",
     source_data_commit: Optional[str] = SOURCE_DATA_BASELINE_COMMIT,
 ) -> RobustnessEvidenceBundle:
     df = pd.read_csv(benchmark_path)
+    if not Path(survey_path).exists() and Path("assets/data/microbial-qc-survey.csv").exists():
+        survey_path = "assets/data/microbial-qc-survey.csv"
     survey_df = pd.read_csv(survey_path)
 
     benchmark_hash = _calculate_content_hash(df)
@@ -785,7 +787,7 @@ def generate_robustness_evidence(
 if __name__ == "__main__":
     import sys
     bench = sys.argv[1] if len(sys.argv) > 1 else "assets/data/assembly_metrics.csv"
-    surv = sys.argv[2] if len(sys.argv) > 2 else "microbial-qc-survey.csv"
+    surv = sys.argv[2] if len(sys.argv) > 2 else "assets/data/microbial-qc-survey.csv"
     out = sys.argv[3] if len(sys.argv) > 3 else "results/robustness"
     generate_robustness_evidence(benchmark_path=bench, survey_path=surv, output_dir=out)
     print(f"Robustness evidence generated successfully in {out}")

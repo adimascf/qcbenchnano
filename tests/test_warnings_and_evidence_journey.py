@@ -71,10 +71,10 @@ def test_dashboard_calculate_scenario_rankings_warnings_and_near_ties():
         df=df,
         model="hac",
         depth="100x",
-        weight_accuracy=28.0,
-        weight_contiguity=20.0,
-        weight_residual=17.0,
-        weight_replicon=35.0,
+        weight_accuracy=27.4,
+        weight_contiguity=21.9,
+        weight_residual=16.3,
+        weight_replicon=34.4,
         gate_complete=False,
         gate_zero_hits=False,
     )
@@ -84,7 +84,7 @@ def test_dashboard_calculate_scenario_rankings_warnings_and_near_ties():
     canonical_res = score_benchmark(
         df,
         Scenario(model="hac", depth="100x"),
-        weights=WeightsConfig(accuracy=28.0, contiguity=20.0, residual=17.0, replicon=35.0),
+        weights=WeightsConfig(accuracy=27.4, contiguity=21.9, residual=16.3, replicon=34.4),
     )
     for el, can in zip(eligible, canonical_res.recommendations[:len(eligible)]):
         assert el["combo"] == can.combo
@@ -208,9 +208,9 @@ def test_browser_journey_warnings_and_per_isolate_evidence(tmp_path):
             page.click("#btn_reveal_all")
             page.wait_for_selector(".ranking-table tbody tr:nth-child(17)")
 
-            # Set residual weight to 0.0 and increase accuracy to 45.0
+            # Set residual weight to 0.0 and increase accuracy to 43.7 (27.4 + 16.3 = 43.7, sum = 100.0)
             page.fill("#w_res", "0")
-            page.fill("#w_acc", "45")
+            page.fill("#w_acc", "43.7")
             page.wait_for_selector("#weight_total_indicator:has-text('100%')")
             page.wait_for_timeout(500)
 

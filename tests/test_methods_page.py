@@ -98,6 +98,9 @@ def test_methods_page_required_sections_and_disclosures():
 
 
 def test_methods_quarto_render_smoke():
+    import shutil
+    if shutil.which("quarto") is None:
+        pytest.skip("quarto binary not installed")
     cmd = ["quarto", "render", "methods_and_robustness.qmd", "--to", "html", "--no-execute"]
     res = subprocess.run(cmd, capture_output=True, text=True)
     assert res.returncode == 0, f"Quarto render failed: {res.stderr}\n{res.stdout}"

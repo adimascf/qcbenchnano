@@ -141,7 +141,7 @@ Every recommendation presents the raw evidence behind its normalized scores, ide
 
    Custom weights must be non-negative percentages totalling exactly 100, and at least one criterion must be non-zero. The arithmetic model makes trade-offs explicit. Non-compensatory requirements are represented by eligibility gates rather than by a geometric mean or epsilon/shift workaround.
 
-13. **Community-balanced preset.** The preset uses the rounded survey allocations: 28% sequence accuracy, 20% reference-aware contiguity, 17% residual adapter/barcode removal, and 35% reference-replicon recovery. These sum to 100. The preset has no automatic gate and is described as the priorities of the surveyed group, not an objective optimum.
+13. **Community-balanced preset.** The preset uses the rounded survey allocations: 27.4% sequence accuracy, 21.9% reference-aware contiguity, 16.3% residual adapter/barcode removal, and 34.4% reference-replicon recovery. These sum to 100. The preset has no automatic gate and is described as the priorities of the surveyed group, not an objective optimum.
 
 14. **Complete-replicon-recovery preset.** Every expected reference replicon must have at least 95% reference coverage. Coverage alone does not claim circularisation or structural validation. Among eligible combinations, ranking uses 43% sequence accuracy, 31% reference-aware contiguity, and 26% residual adapter/barcode removal. Replicon recovery is enforced by the gate and is not counted again as a ranking advantage.
 

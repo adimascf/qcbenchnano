@@ -133,7 +133,7 @@ The system provides four named preference configurations:
 
 | Preset Name | Accuracy ($w_{\text{acc}}$) | Contiguity ($w_{\text{cont}}$) | Residual ($w_{\text{res}}$) | Replicon ($w_{\text{rep}}$) | Default Gates | Description |
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| **Community-balanced** | **28%** | **20%** | **17%** | **35%** | None | Empirical mean weights derived from survey of 22 microbial bioinformaticians. |
+| **Community-balanced** | **27.4%** | **21.9%** | **16.3%** | **34.4%** | None | Empirical mean weights derived from survey of 22 microbial bioinformaticians. |
 | **Complete-replicon-recovery** | 10% | 20% | 10% | **60%** | Complete Recovery | Prioritizes plasmid and chromosome retention; excludes combinations with $< 95\%$ coverage. |
 | **Sequence-accurate-assembly** | **60%** | 20% | 10% | 10% | None | Prioritizes base quality and low indel/mismatch rates for downstream variant calling. |
 | **Custom** | User-defined | User-defined | User-defined | User-defined | User-defined | Interactive exploration; weights must sum to exactly 100% with $\ge 1$ non-zero weight. |

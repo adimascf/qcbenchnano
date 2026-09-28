@@ -23,10 +23,10 @@ from qc_scoring.scorer import (
 ANALYSIS_DESCRIPTION = "survey-weighted decision analysis (preference alignment)"
 
 COMMUNITY_BALANCED_WEIGHTS = WeightsConfig(
-    accuracy=28.0,
-    contiguity=20.0,
-    residual=17.0,
-    replicon=35.0,
+    accuracy=27.4,
+    contiguity=21.9,
+    residual=16.3,
+    replicon=34.4,
 )
 
 COMMUNITY_BALANCED_GATES = GateConfig(

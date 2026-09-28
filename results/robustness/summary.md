@@ -15,7 +15,7 @@
 - **Outcome Interpretation**: A changed winner under alternative denominators, sub-cohorts, or preferences is reported as an empirical robustness result, not treated as a failed test.
 
 ## 1. Replicon Calibration Denominator Sensitivity ($B \in \{2, 3, 4\}$)
-Rankings were recomputed with replicon-loss denominators $B = 2.0, 3.0, 4.0$ while holding every other scoring-v1 decision fixed under Community-balanced weights (accuracy: 28%, contiguity: 20%, residual: 17%, replicon: 35%).
+Rankings were recomputed with replicon-loss denominators $B = 2.0, 3.0, 4.0$ while holding every other scoring-v1 decision fixed under Community-balanced weights (accuracy: 27.4%, contiguity: 21.9%, residual: 16.3%, replicon: 34.4%).
 
 | Scenario | Winner ($B=2$) | Winner ($B=3$, Canonical) | Winner ($B=4$) | Winner Stable? | Max Rank Shift |
 | :--- | :--- | :--- | :--- | :---: | :---: |

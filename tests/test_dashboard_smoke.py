@@ -49,13 +49,16 @@ def test_dashboard_source_exists_and_has_agreed_regions():
     assert "region-priorities" in content or "section-priorities" in content or "Priorities" in content
     assert "region-shortlist" in content or "section-shortlist" in content or "Recommendation Shortlist" in content
     assert "region-detail" in content or "section-detail" in content or "Combination Details" in content
-    assert "region-methodology" in content or "section-methodology" in content or "Methodology" in content
+    assert "provenance-box" in content or "region-methodology" in content or "section-methodology" in content or "Methodology" in content
 
     # Pinned evidence / no moving branch head url
     assert "raw.githubusercontent.com/adimascf/biox7021/refs/heads/main" not in content, \
         "Dashboard must not silently fetch from moving branch head"
 
 def test_dashboard_quarto_render_smoke():
+    import shutil
+    if shutil.which("quarto") is None:
+        pytest.skip("quarto binary not installed")
     # Smoke check: quarto render on tool_weighting.qmd succeeds and contains configured provenance
     cmd = ["quarto", "render", "tool_weighting.qmd", "--to", "html", "--no-execute"]
     res = subprocess.run(cmd, capture_output=True, text=True)

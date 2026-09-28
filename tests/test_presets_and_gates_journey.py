@@ -201,11 +201,11 @@ def test_browser_acceptance_presets_custom_and_gates_journey(tmp_path):
             page.select_option("#depth_select", "100x")
             page.wait_for_selector("#region-shortlist table tbody tr:first-child:has-text('seqkit-barbell')")
 
-            # Initial state is Community-balanced: 28, 20, 17, 35, both gates unchecked
-            assert page.input_value("#w_acc") in ("28", "28.0")
-            assert page.input_value("#w_cont") in ("20", "20.0")
-            assert page.input_value("#w_res") in ("17", "17.0")
-            assert page.input_value("#w_rep") in ("35", "35.0")
+            # Initial state is Community-balanced: 27.4, 21.9, 16.3, 34.4, both gates unchecked
+            assert page.input_value("#w_acc") in ("27.4", "27.40")
+            assert page.input_value("#w_cont") in ("21.9", "21.90")
+            assert page.input_value("#w_res") in ("16.3", "16.30")
+            assert page.input_value("#w_rep") in ("34.4", "34.40")
             assert not page.is_checked("#gate_complete")
             assert not page.is_checked("#gate_zero_hits")
 
@@ -272,7 +272,7 @@ def test_browser_acceptance_presets_custom_and_gates_journey(tmp_path):
             page.click("#btn_reset")
             page.wait_for_function("document.querySelector('#preset_select').value === 'community_balanced'")
             assert page.input_value("#preset_select") == "community_balanced"
-            assert page.input_value("#w_acc") in ("28", "28.0")
+            assert page.input_value("#w_acc") in ("27.4", "27.40")
             assert not page.is_checked("#gate_complete")
 
             # Toggle a gate
@@ -284,10 +284,10 @@ def test_browser_acceptance_presets_custom_and_gates_journey(tmp_path):
             page.click("#btn_reset")
             page.wait_for_function("document.querySelector('#preset_select').value === 'community_balanced'")
             assert page.input_value("#preset_select") == "community_balanced"
-            assert page.input_value("#w_acc") in ("28", "28.0")
-            assert page.input_value("#w_cont") in ("20", "20.0")
-            assert page.input_value("#w_res") in ("17", "17.0")
-            assert page.input_value("#w_rep") in ("35", "35.0")
+            assert page.input_value("#w_acc") in ("27.4", "27.40")
+            assert page.input_value("#w_cont") in ("21.9", "21.90")
+            assert page.input_value("#w_res") in ("16.3", "16.30")
+            assert page.input_value("#w_rep") in ("34.4", "34.40")
             assert not page.is_checked("#gate_complete")
             assert not page.is_checked("#gate_zero_hits")
 
@@ -363,6 +363,7 @@ def test_browser_acceptance_all_ineligible_state(tmp_path):
             # Select scenario
             page.select_option("#model_select", "hac")
             page.select_option("#depth_select", "100x")
+            page.wait_for_selector("#region-shortlist table tbody tr:first-child:has-text('seqkit-barbell')")
 
             # Enable zero residual hits gate (which will cause all 17 combos to fail)
             page.check("#gate_zero_hits")

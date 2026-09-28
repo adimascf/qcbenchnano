@@ -38,7 +38,7 @@ CANONICAL_COMMUNITY_LEADERS = {
     Scenario("hac", "20x"): {
         "leader": "seqkit-dorado",
         "rank": 1,
-        "display_score": 94.6,
+        "display_score": 94.7,
         "score_accuracy": 80.9,
         "score_contiguity": 99.9,
         "score_residual": 100.0,
@@ -56,7 +56,7 @@ CANONICAL_COMMUNITY_LEADERS = {
     Scenario("sup", "20x"): {
         "leader": "chopper-porechop_abi",
         "rank": 1,
-        "display_score": 97.5,
+        "display_score": 97.6,
         "score_accuracy": 91.1,
         "score_contiguity": 100.0,
         "score_residual": 100.0,
