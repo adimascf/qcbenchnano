@@ -59,6 +59,37 @@ rule quality_fastplong_100:
 				--json {output.json} --html {output.html} --verbose 2> {log} 
 		"""
 
+# Fastplong 1000 bp (adapter trimming disabled)
+tool = "fastplong_1000"
+rule quality_fastplong_1000:
+	input:
+		reads=RESULTS / "QC/trimming/{trimmer}/{model}/{sample}.{trimmer}.fastq"
+	log:
+		LOGS / f"QC/quality/{tool}-{{trimmer}}/{{model}}/{{sample}}.log"
+	threads: 8
+	resources:
+		mem="16GiB",
+		runtime=f"{5 * REPEAT}m"
+	conda:
+		ENVS / "fastplong.yaml"
+	params:
+		no_adapt_trimming="--disable_adapter_trimming",
+		quality_threshold=get_quality_threshold, # hac is 10, sup is 15
+		length_threshold=1000
+	output:
+		reads=temp(RESULTS / f"QC/quality/{tool}-{{trimmer}}/{{model}}/{{sample}}.{tool}-{{trimmer}}.fastq"),
+		json=temp(RESULTS / f"QC/quality/{tool}-{{trimmer}}/{{model}}/{{sample}}.{tool}-{{trimmer}}.json"),
+		html=temp(RESULTS / f"QC/quality/{tool}-{{trimmer}}/{{model}}/{{sample}}.{tool}-{{trimmer}}.html")
+	benchmark:   
+		repeat(BENCHMARK / f"QC/quality/{tool}-{{trimmer}}/{{model}}/{{sample}}.{tool}-{{trimmer}}.tsv", REPEAT)
+	shell:    
+		"""   
+		fastplong -i {input.reads} -o {output.reads} {params.no_adapt_trimming} \
+				--length_required {params.length_threshold} \
+				--mean_qual {params.quality_threshold} \
+				--json {output.json} --html {output.html} --verbose 2> {log} 
+		"""
+
 # 2. SeqKit 100 bp
 tool = "seqkit_100"
 rule quality_seqkit_100:
@@ -75,6 +106,31 @@ rule quality_seqkit_100:
 	params:
 		quality_threshold=get_quality_threshold, # hac is 10, sup is 15
 		length_threshold=100
+	output:
+		reads=temp(RESULTS / f"QC/quality/{tool}-{{trimmer}}/{{model}}/{{sample}}.{tool}-{{trimmer}}.fastq")
+	benchmark:   
+		repeat(BENCHMARK / f"QC/quality/{tool}-{{trimmer}}/{{model}}/{{sample}}.{tool}-{{trimmer}}.tsv", REPEAT)
+	shell:    
+		"""
+		seqkit seq --min-len {params.length_threshold} --min-qual {params.quality_threshold} -o {output.reads} {input.reads} 2> {log}
+		"""
+
+# SeqKit 1000 bp
+tool = "seqkit_1000"
+rule quality_seqkit_1000:
+	input:
+		reads=RESULTS / "QC/trimming/{trimmer}/{model}/{sample}.{trimmer}.fastq"
+	log:
+		LOGS / f"QC/quality/{tool}-{{trimmer}}/{{model}}/{{sample}}.log"
+	threads: 8
+	resources:
+		mem="16GiB",
+		runtime=f"{5 * REPEAT}m"
+	conda:
+		ENVS / "seqkit.yaml"
+	params:
+		quality_threshold=get_quality_threshold, # hac is 10, sup is 15
+		length_threshold=1000
 	output:
 		reads=temp(RESULTS / f"QC/quality/{tool}-{{trimmer}}/{{model}}/{{sample}}.{tool}-{{trimmer}}.fastq")
 	benchmark:   
@@ -188,6 +244,32 @@ rule quality_chopper_trim100:
 		chopper {params.approach} --cutoff {params.quality_threshold} --minlength {params.length_threshold} -i {input.reads} > {output.reads} 2> {log}
 		"""
 
+# Chopper Trim-by-Quality 1000 bp
+tool = "chopper_trim1000"
+rule quality_chopper_trim1000:
+	input:
+		reads=RESULTS / "QC/trimming/{trimmer}/{model}/{sample}.{trimmer}.fastq"
+	log:
+		LOGS / f"QC/quality/{tool}-{{trimmer}}/{{model}}/{{sample}}.log"
+	threads: 8
+	resources:
+		mem="16GiB",
+		runtime=f"{25 * REPEAT}m"
+	conda:
+		ENVS / "chopper.yaml"
+	params:
+		approach="--trim-approach trim-by-quality",
+		quality_threshold=get_quality_threshold,
+		length_threshold=1000
+	output:
+		reads=temp(RESULTS / f"QC/quality/{tool}-{{trimmer}}/{{model}}/{{sample}}.{tool}-{{trimmer}}.fastq")
+	benchmark:
+		repeat(BENCHMARK / f"QC/quality/{tool}-{{trimmer}}/{{model}}/{{sample}}.{tool}-{{trimmer}}.tsv", REPEAT)
+	shell:
+		"""
+		chopper {params.approach} --cutoff {params.quality_threshold} --minlength {params.length_threshold} -i {input.reads} > {output.reads} 2> {log}
+		"""
+
 # 7. Chopper Best-Read-Segment Extract 100 bp
 tool = "chopper_extract100"
 rule quality_chopper_extract100:
@@ -205,6 +287,32 @@ rule quality_chopper_extract100:
 		approach="--trim-approach best-read-segment",
 		quality_threshold=get_quality_threshold,
 		length_threshold=100
+	output:
+		reads=temp(RESULTS / f"QC/quality/{tool}-{{trimmer}}/{{model}}/{{sample}}.{tool}-{{trimmer}}.fastq")
+	benchmark:
+		repeat(BENCHMARK / f"QC/quality/{tool}-{{trimmer}}/{{model}}/{{sample}}.{tool}-{{trimmer}}.tsv", REPEAT)
+	shell:
+		"""
+		chopper {params.approach} --cutoff {params.quality_threshold} --minlength {params.length_threshold} -i {input.reads} > {output.reads} 2> {log}
+		"""
+
+# Chopper Best-Read-Segment Extract 1000 bp
+tool = "chopper_extract1000"
+rule quality_chopper_extract1000:
+	input:
+		reads=RESULTS / "QC/trimming/{trimmer}/{model}/{sample}.{trimmer}.fastq"
+	log:
+		LOGS / f"QC/quality/{tool}-{{trimmer}}/{{model}}/{{sample}}.log"
+	threads: 8
+	resources:
+		mem="16GiB",
+		runtime=f"{25 * REPEAT}m"
+	conda:
+		ENVS / "chopper.yaml"
+	params:
+		approach="--trim-approach best-read-segment",
+		quality_threshold=get_quality_threshold,
+		length_threshold=1000
 	output:
 		reads=temp(RESULTS / f"QC/quality/{tool}-{{trimmer}}/{{model}}/{{sample}}.{tool}-{{trimmer}}.fastq")
 	benchmark:

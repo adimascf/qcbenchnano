@@ -23,17 +23,22 @@ DEPTHS = config["depth"]
 MODELS = config["model"]
 REPEAT = config["repeat"]
 
-# Quality filtering exploration tools (100 bp cutoffs, 1000 bp excluded)
+# Quality filtering exploration tools (100 bp and 1000 bp length cutoffs)
 QUALITY_TOOLS = [
 	"chopper_extract100",
+	"chopper_extract1000",
 	"chopper_trim100",
+	"chopper_trim1000",
 	"fastplong_100",
+	"fastplong_1000",
 	"filtlong_default",
 	"filtlong_len",
 	"filtlong_meanq",
 	"seqkit_100",
+	"seqkit_1000",
 	"unprocessed"
 ]
+
 
 # All settings applied to Dorado-trimmed reads
 TRIMMERS = ["dorado"]

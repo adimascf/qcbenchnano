@@ -75,16 +75,18 @@ def main():
     df_contam["tool"] = clean_tool_name(df_contam["combo"])
     df_contam_agg = df_contam.groupby(["tool", "depth"], as_index=False)["contamination_count"].sum()
 
-    # Establish consistent tool display order (excluding 1000 bp settings)
+    # Establish consistent tool display order (including 100 bp and 1000 bp settings)
     tools_in_data = sorted(list(set(
         df_call["tool"].unique().tolist() +
         df_quast["tool"].unique().tolist() +
         df_missed_agg["tool"].unique().tolist()
     )))
     canonical_order = [
-        "chopper_extract100", "chopper_trim100", "fastplong_100",
+        "chopper_extract100", "chopper_extract1000",
+        "chopper_trim100", "chopper_trim1000",
+        "fastplong_100", "fastplong_1000",
         "filtlong_default", "filtlong_len", "filtlong_meanq",
-        "seqkit_100", "unprocessed"
+        "seqkit_100", "seqkit_1000", "unprocessed"
     ]
     order = [t for t in canonical_order if t in tools_in_data] or tools_in_data
 
