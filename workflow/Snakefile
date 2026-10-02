@@ -87,8 +87,8 @@ rule all:
 		TABLES / "assess/call/metrics/combo_variant_summary_averages.csv",
 		TABLES / "assess/call/metrics/combo_variant_fnfp.csv",
 		TABLES / "assess/call/metrics/combo_variant_sample_fnfp.csv",
-		FIGURES / "assess/call/metrics/combo_variant_fp.png",
-		FIGURES / "assess/call/metrics/combo_variant_fn.png",
+		FIGURES / "assess/call/metrics/combo_call_fnfp_sup.png",
+		FIGURES / "assess/call/metrics/combo_call_fnfp_hac.png",
 
 		TABLES / "assess/assembly/metrics/combo_contaminant_summary_count.csv",
 		TABLES / "assess/assembly/metrics/combo_contaminant_details.csv",

@@ -216,9 +216,9 @@ def plot_paper_composite_figure(
             zorder=2,
         )
 
-        ax.set_title(f"{panel_letters[d_idx]}. Depth: {depth}", fontsize=14, pad=10)
+        ax.set_title(f"{panel_letters[d_idx]}. {depth.rstrip('x')}× depth", fontsize=14, pad=10)
         if d_idx == 0:
-            ax.set_ylabel("Preference Alignment Score (0–100)", fontsize=12)
+            ax.set_ylabel("Composite score (0–100)", fontsize=12)
         else:
             ax.set_ylabel("")
 

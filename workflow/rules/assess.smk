@@ -95,8 +95,7 @@ rule assess_variant_fnfp:
 		ENVS / "generate_figure_python.yaml"
 	output:
 		csv=TABLES / "assess/call/metrics/combo_variant_fnfp.csv",
-		fn_plot=FIGURES / f"assess/call/metrics/combo_variant_fn.png",
-		fp_plot=FIGURES / f"assess/call/metrics/combo_variant_fp.png"
+		plots=expand(FIGURES / "assess/call/metrics/combo_call_fnfp_{model}.png", model=config["model"])
 	script:
 		"../scripts/extract_plot_fnfp.py"
 
