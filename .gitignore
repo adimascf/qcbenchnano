@@ -16,3 +16,8 @@ logbook/images/
 *.egg-info/
 __pycache__/
 *.pyc
+
+# Local agent config and scratch issues
+AGENTS.md
+docs/agents/
+.scratch/
