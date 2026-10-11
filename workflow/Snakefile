@@ -139,8 +139,14 @@ rule all:
 		TABLES / "assess/assembly/metrics/combo_mismatches_per_100kbp_significance.csv",
 		TABLES / "assess/assembly/metrics/combo_indels_per_100kbp_significance.csv",
 
-		FIGURES / "assess/benchmark_resources/benchmark_resources.png",
-		TABLES / "assess/benchmark_resources/benchmark_resources.csv"
+		expand(
+			[
+				FIGURES / "assess/benchmark_resources/combo_benchmark_resources_{model}.png",
+				TABLES / "assess/benchmark_resources/combo_benchmark_resources_{model}.csv",
+			],
+			model=MODELS,
+		),
+
 
 include: RULES / "common.smk"
 include: RULES / "trim.smk"

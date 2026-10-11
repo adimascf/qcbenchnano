@@ -395,25 +395,30 @@ rule test_assembly_significance:
 
 rule benchmark_resources:
 	input:
-		trimming_benchmark=expand(
+		trimming_benchmark=lambda wildcards: expand(
 				BENCHMARK / "QC/trimming/{trimmer}/{model}/{sample}.{trimmer}.tsv",
 				trimmer=[t for t in EVAL_TRIMMERS if t != "untrimmed"],
-				model=MODELS,
+				model=wildcards.model,
 				sample=SAMPLES),
-		quality_benchmark=expand(
+		quality_benchmark=lambda wildcards: expand(
 				BENCHMARK / "QC/quality/{combo}/{model}/{sample}.{combo}.tsv",
 				combo=[c for c in COMBINATIONS if not c.startswith("unprocessed")],
-				model=MODELS,
-				sample=SAMPLES)
+				model=wildcards.model,
+				sample=SAMPLES),
+		fastqs=lambda wildcards: [
+				Path(pep.get_sample(s)["reads_dir"]) / f"trim/{wildcards.model}/{s}.fastq"
+				for s in SAMPLES
+		]
 	log:
-		LOGS / "assess/benchmark_resources/benchmark_resources.log"
+		LOGS / "assess/benchmark_resources/combo_benchmark_resources_{model}.log"
 	resources:
 		mem="16GiB",
 		runtime="20m"
 	conda:
 		ENVS / "generate_figure_python.yaml"
 	output:
-		figure=FIGURES / "assess/benchmark_resources/benchmark_resources.png",
-		csv=TABLES / "assess/benchmark_resources/benchmark_resources.csv"
+		figure=FIGURES / "assess/benchmark_resources/combo_benchmark_resources_{model}.png",
+		csv=TABLES / "assess/benchmark_resources/combo_benchmark_resources_{model}.csv"
 	script:
 		"../scripts/plot_benchmark_resources.py"
+
