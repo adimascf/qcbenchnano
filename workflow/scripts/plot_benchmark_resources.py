@@ -178,14 +178,12 @@ def main():
     order_time = df.groupby("combo")["cpu_time_per_mbp"].mean().sort_values().index.tolist()
 
     # Panel A: Maximum memory usage (symlog)
-    sns.boxplot(
+    sns.boxenplot(
         data=df, x="combo", y="max_rss_gb", hue="trimmer",
         order=order_mem, hue_order=trimmer_order, palette=trimmer_palette,
-        dodge=False, ax=ax_mem, fliersize=0,
-        boxprops=dict(alpha=0.6, edgecolor="black", linewidth=0.8),
-        whiskerprops=dict(color="black", linewidth=0.8),
-        capprops=dict(color="black", linewidth=0.8),
-        medianprops=dict(color="black", linewidth=1.2),
+        dodge=False, ax=ax_mem, showfliers=False, k_depth=3,
+        box_kws=dict(alpha=0.6, edgecolor="black", linewidth=0.8),
+        line_kws=dict(color="black", linewidth=1.2),
     )
     sns.stripplot(
         data=df, x="combo", y="max_rss_gb", hue="trimmer",
@@ -208,14 +206,12 @@ def main():
         ax_mem.get_legend().remove()
 
     # Panel B: CPU time per Mbp (symlog)
-    sns.boxplot(
+    sns.boxenplot(
         data=df, x="combo", y="cpu_time_per_mbp", hue="trimmer",
         order=order_time, hue_order=trimmer_order, palette=trimmer_palette,
-        dodge=False, ax=ax_time, fliersize=0,
-        boxprops=dict(alpha=0.6, edgecolor="black", linewidth=0.8),
-        whiskerprops=dict(color="black", linewidth=0.8),
-        capprops=dict(color="black", linewidth=0.8),
-        medianprops=dict(color="black", linewidth=1.2),
+        dodge=False, ax=ax_time, showfliers=False, k_depth=3,
+        box_kws=dict(alpha=0.6, edgecolor="black", linewidth=0.8),
+        line_kws=dict(color="black", linewidth=1.2),
     )
     sns.stripplot(
         data=df, x="combo", y="cpu_time_per_mbp", hue="trimmer",
