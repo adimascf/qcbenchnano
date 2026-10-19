@@ -33,7 +33,9 @@ An interactive dashboard built with Quarto and Shinylive allows users to customi
 
 ## Data and Accessions
 
-All accessions, Figshare DOIs, and reference assemblies are catalogued in [`config/accessions.csv`](config/accessions.csv).
+All accessions, Figshare DOIs, and reference assemblies are catalogued in [`config/accessions.csv`](config/accessions.csv). Finished reference genome assemblies are deposited in NCBI GenBank (accessions listed in the table below).
+
+The variant truthsets, mutated reference genomes, and associated benchmarking data are [archived on Zenodo](https://doi.org/10.5281/zenodo.10867170).
 
 The dataset comprises 13 bacterial isolates sequenced with Oxford Nanopore R10.4.1 (E8.2) flow cells. While the original public raw reads included runs with mixed sequencing kits, each sample was filtered to only include reads from a single designated barcoding kit:
 
@@ -158,7 +160,11 @@ To run the pipeline on an HPC cluster, make sure you have:
 ### 1. Configuration
 Check and update the configuration files before launching:
 - [`config/config.yaml`](config/config.yaml): Defines basecalling models (`sup`, `hac`), target read depths (`20`, `100`), trimming tools (`porechop_abi`, `dorado`, `barbell`), and quality filtering tools (`fastplong`, `filtlong`, `chopper`, `seqkit`).
-- [`config/pep/project_config.yaml`](config/pep/project_config.yaml): Sets the source directories for `fastqs`, `reference`, `mutreference`, and `truth_vcf`.
+- [`config/pep/project_config.yaml`](config/pep/project_config.yaml): Configures the PEP sources (`source1`–`source4`) pointing to local directories:
+  - `source1` (`reads_dir`): Directory containing input basecalled FASTQs structured as `{trim|notrim}/{model}/{sample}.fastq`.
+  - `source2` (`reference_path`): Directory containing finished reference genome FASTA files `{sample}.fna` (NCBI GenBank).
+  - `source3` (`mutreference_path`): Directory containing synthetic mutated reference FASTA files `{sample}.mutref.fna` (Zenodo).
+  - `source4` (`truth_vcf_path`): Directory containing ground-truth variant VCF files `{sample}.truth.vcf.gz` (Zenodo).
 - [`workflow/Snakefile`](workflow/Snakefile): Set `RESULTS` and `DATA` root paths.
 
 ### 2. Launch via Slurm script
